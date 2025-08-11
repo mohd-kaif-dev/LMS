@@ -10,6 +10,8 @@ import './config/passport.js'; // Importing passport configuration
 import connectDB from "./config/connectDB.js";
 import authRoutes from "./routes/auth.route.js";
 import userRoutes from "./routes/user.route.js";
+import courseRoutes from "./routes/course.route.js";
+// import uploadRoutes from "./routes/upload.route.js";
 
 
 const app = express();
@@ -41,7 +43,8 @@ app.use(passport.session());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
-
+app.use("/api/courses", courseRoutes);
+// app.use("/api/uploads", uploadRoutes);
 
 app.get("/", (req, res) => {
     res.send("Welcome to LMS API!");

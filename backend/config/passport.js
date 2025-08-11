@@ -40,8 +40,10 @@ passport.use(
     )
 );
 
+
 // jwt strategy for authentication
-const cookieExtractor = (req) => req.cookies && req.cookies.token ? req.cookies.token : null;
+const cookieExtractor = (req) => req?.cookies && req.cookies.token ? req.cookies.token : null;
+// console.log("JWT Strategy:", cookieExtractor);
 const opts = {
     jwtFromRequest: cookieExtractor,
     secretOrKey: process.env.JWT_SECRET
