@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import CourseList from "./CourseList";
 
 const InstructorDashboard = () => {
   const navigate = useNavigate();
@@ -20,6 +21,12 @@ const InstructorDashboard = () => {
           </h1>
           <p className="text-gray-600">Role: {user.role}</p>
         </div>
+        <button
+          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md transition"
+          onClick={() => navigate("/course-creation")}
+        >
+          Create Course
+        </button>
         <button
           onClick={() => {
             localStorage.removeItem("user");
@@ -50,53 +57,7 @@ const InstructorDashboard = () => {
       {/* Courses List */}
       <section className="bg-white p-6 rounded-lg shadow-md">
         <h2 className="text-xl font-bold mb-4">Your Courses</h2>
-        <table className="w-full border-collapse">
-          <thead>
-            <tr className="bg-gray-200 text-gray-700">
-              <th className="p-3 text-left">Course Name</th>
-              <th className="p-3 text-left">Category</th>
-              <th className="p-3 text-left">Students</th>
-              <th className="p-3 text-left">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {[
-              {
-                name: "React for Beginners",
-                category: "Web Development",
-                students: 45,
-                status: "Published",
-              },
-              {
-                name: "Advanced Node.js",
-                category: "Backend Development",
-                students: 30,
-                status: "Draft",
-              },
-              {
-                name: "JavaScript Mastery",
-                category: "Programming",
-                students: 49,
-                status: "Published",
-              },
-            ].map((course, index) => (
-              <tr key={index} className="border-b hover:bg-gray-50 transition">
-                <td className="p-3">{course.name}</td>
-                <td className="p-3">{course.category}</td>
-                <td className="p-3">{course.students}</td>
-                <td
-                  className={`p-3 font-semibold ${
-                    course.status === "Published"
-                      ? "text-green-500"
-                      : "text-yellow-500"
-                  }`}
-                >
-                  {course.status}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <CourseList />
       </section>
     </div>
   );

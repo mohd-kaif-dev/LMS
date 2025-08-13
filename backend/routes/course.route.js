@@ -10,7 +10,8 @@ import {
     getMyEnrolledCourses,
     uploadCourseThumbnail,
     uploadLessonVideo,
-    deleteLessonVideo
+    deleteLessonVideo,
+    getInstructorAllCourses
 } from "../controllers/course.controller.js";
 import { protect } from "../middlewares/auth.middleware.js";
 import { uploadImage, uploadVideo } from "../middlewares/upload.middleware.js";
@@ -39,10 +40,12 @@ router.post("/:id/enroll", protect, enrollInCourse);
 
 router.get("/my/enrollments", protect, getMyEnrolledCourses);
 
-router.post('/:courseId/thumbnail', protect, uploadImage.single('thumbnail'), uploadCourseThumbnail);
+router.put('/:courseId/thumbnail', protect, uploadImage.single('thumbnail'), uploadCourseThumbnail);
 
-router.post('/:courseId/lessons/:lessonId/video', protect, uploadVideo.single('video'), uploadLessonVideo);
+router.put('/:courseId/sections/:sectionId/lessons', protect, uploadVideo.single('video'), uploadLessonVideo);
 
-router.delete('/:courseId/lessons/:lessonId/video', protect, deleteLessonVideo);
+router.delete('/:courseId/sections/:sectionId/lessons/:lessonId', protect, deleteLessonVideo);
+
+router.get("/", protect, getInstructorAllCourses);
 
 export default router;

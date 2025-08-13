@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 
 export const protect = (req, res, next) => {
     let token;
-    console.log("Cookies", req.cookies)
+
     if (req.cookies?.token) {
         token = req.cookies.token;
     } else if (req.headers.authorization?.startsWith("Bearer")) {

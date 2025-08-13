@@ -5,6 +5,8 @@ import SuccessLogin from "./pages/SuccessLogin";
 import Register from "./pages/Register";
 import InstructorDashboard from "./components/InstructorDashboard";
 import Layout from "./components/Layout";
+import CourseCreation from "./components/CourseCreation";
+import CourseDetailsPage from "./components/CourseDetailPage";
 
 const App = () => {
   return (
@@ -20,6 +22,8 @@ const App = () => {
             element={<InstructorDashboard />}
           />
         </Route>
+        <Route path="/course-creation" element={<CourseCreation />} />
+        <Route path="/course/:courseId" element={<CourseDetailsPage />} />
       </Routes>
     </BrowserRouter>
   );

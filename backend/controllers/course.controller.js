@@ -18,7 +18,7 @@ export const createCourseDraft = async (req, res) => {
         const course = await Course.create({
             title,
             category,
-            instructor: req.user._id,
+            instructor: req.user.userId,
             status: "draft",
         });
 
@@ -35,7 +35,7 @@ export const updateCourseDraft = async (req, res) => {
         const updates = req.body;
 
         const course = await Course.findOneAndUpdate(
-            { _id: id, instructor: req.user._id },
+            { _id: id, instructor: req.user.userId },
             { $set: updates },
             { new: true }
         );
@@ -55,14 +55,16 @@ export const togglePublishCourse = async (req, res) => {
         const { id } = req.params;
 
         const course = await Course.findOneAndUpdate(
-            { _id: id, instructor: req.user._id },
-            { $set: { status: { $eq: ["$status", "draft"] ? "published" : "draft" } } },
-            { new: true }
+            { _id: id, instructor: req.user.userId },
         );
 
         if (!course) {
             return res.status(404).json({ message: "Course not found or not yours" });
         }
+
+        course.status = course.status === "draft" ? "published" : "draft";
+        course.published = !course.published; // toggle published status
+        await course.save();
 
         res.json({ message: `Course ${course.status === "published" ? "published" : "unpublished"} successfully`, course });
     } catch (err) {
@@ -121,8 +123,8 @@ export const enrollInCourse = async (req, res) => {
 
         if (!course) return res.status(404).json({ message: "Course not found" });
 
-        if (!course.studentsEnrolled.includes(req.user._id)) {
-            course.studentsEnrolled.push(req.user._id);
+        if (!course.studentsEnrolled.includes(req.user.userId)) {
+            course.studentsEnrolled.push(req.user.userId);
             await course.save();
         }
 
@@ -135,7 +137,7 @@ export const enrollInCourse = async (req, res) => {
 // Get enrolled courses for a user
 export const getMyEnrolledCourses = async (req, res) => {
     try {
-        const courses = await Course.find({ studentsEnrolled: req.user._id }).populate("instructor", "name email");
+        const courses = await Course.find({ studentsEnrolled: req.user.userId }).populate("instructor", "name email");
         res.json(courses);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -147,7 +149,7 @@ export const deleteCourse = async (req, res) => {
     try {
         const course = await Course.findOneAndDelete({
             _id: req.params.id,
-            instructor: req.user._id
+            instructor: req.user.userId
         });
 
         if (!course) {
@@ -163,6 +165,7 @@ export const deleteCourse = async (req, res) => {
 // Upload course thumbnail
 export const uploadCourseThumbnail = async (req, res) => {
     try {
+
         const courseId = req.params.courseId; // matches route
         if (!req.file) return res.status(400).json({ message: "No file uploaded" });
 
@@ -196,6 +199,7 @@ export const uploadCourseThumbnail = async (req, res) => {
 export const uploadLessonVideo = async (req, res) => {
     try {
         const { courseId, sectionId, lessonId } = req.params;
+        const { title, description, duration } = req.body;
         if (!req.file) return res.status(400).json({ message: "No video file uploaded" });
 
         const uploadResult = await cloudinary.uploader.upload(req.file.path, {
@@ -211,8 +215,11 @@ export const uploadLessonVideo = async (req, res) => {
         const section = course.sections.id(sectionId);
         if (!section) return res.status(404).json({ message: "Section not found" });
 
-        const lesson = section.lessons.id(lessonId);
-        if (!lesson) return res.status(404).json({ message: "Lesson not found" });
+        let lesson = section.lessons.id(lessonId);
+        if (!lesson) {
+            lesson = section.lessons.create({ title, description, duration });
+            section.lessons.push(lesson);
+        }
 
         // delete previous video if exists
         if (lesson.videoPublicId) {
@@ -307,3 +314,12 @@ export const addLessonWithVideo = async (req, res) => {
 };
 
 
+export const getInstructorAllCourses = async (req, res) => {
+    try {
+        const instructorId = req.user.userId;
+        const courses = await Course.find({ instructor: instructorId }).populate("instructor", "name");
+        res.json(courses);
+    } catch (error) {
+        res.status(500).json({ message: "Failed to fetch courses", error: error.message });
+    }
+}
