@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 
 const userSchema = new mongoose.Schema({
-    googleId: { type: String, unique: true },
+    googleId: { type: String },
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
@@ -18,8 +18,18 @@ const userSchema = new mongoose.Schema({
 
 userSchema.pre('save', async function () {
     if (!this.isModified('password')) return;
-    this.password = await bcrypt.hash(this.password, 10);
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
 });
+
+userSchema.pre('insertMany', async function (next, docs) {
+    for (let doc of docs) {
+        const salt = await bcrypt.genSalt(10);
+        doc.password = await bcrypt.hash(doc.password, salt);
+    }
+    next();
+});
+
 
 userSchema.methods.comparePassword = async function (enteredPassword) {
     return bcrypt.compare(enteredPassword, this.password);

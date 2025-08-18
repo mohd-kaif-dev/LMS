@@ -3,15 +3,21 @@ import { generateToken } from '../utils/generateToken.js';
 
 
 
-export const register = async (req, res) => {
+export const signup = async (req, res) => {
     const { name, email, password } = req.body;
+
+    if (password.length < 6) return res.status(400).json({ message: 'Password must be at least 6 characters long' });
+
     const userExists = await User.findOne({ email });
 
-    if (userExists)
-        return res.status(400).json({ message: 'User already exists' });
+    if (userExists) return res.status(400).json({ message: 'User already exists' });
 
     const user = await User.create({ name, email, password });
-    const token = generateToken(user._id, user.role);
+
+    if (!user) return res.status(400).json({ message: 'User not created' });
+
+    user.password = undefined;
+    const token = generateToken(user._id, res);
 
     res.status(201).json({
         user,
@@ -23,13 +29,17 @@ export const login = async (req, res) => {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
 
-    if (!user || !(await user.comparePassword(password))) {
-        return res.status(401).json({ message: 'Invalid email or password' });
-    }
+    if (!user) return res.status(400).json({ message: 'User not found' });
 
-    const token = generateToken(user._id, user.role);
+    const isMatch = await user.comparePassword(password);
 
-    res.json({
+    if (!isMatch) return res.status(400).json({ message: 'Invalid credentials' });
+
+    const token = generateToken(user._id, res);
+
+    user.password = undefined;
+
+    res.status(200).json({
         user,
         token
     });
@@ -37,6 +47,7 @@ export const login = async (req, res) => {
 
 export const getUser = async (req, res) => {
     try {
+
         if (!req.user) {
             return res.status(401).json({ message: 'User not authenticated' });
         }
@@ -58,17 +69,10 @@ export const googleCallback = (req, res) => {
         if (!user) {
             return res.status(401).json({ message: 'User not authenticated' });
         }
-        const token = generateToken(user._id, user.role);
-
-        // Store the token in a cookie
-        res.cookie('token', token, {
-            httpOnly: true,
-            sameSite: 'lax',
-        });
+        const token = generateToken(user._id, res);
 
         // 👉 Redirect with token (for frontend to capture via query param)
-        res
-            .redirect(`${process.env.CLIENT_URL}/success-login?token=${token}`);
+        res.redirect(`${process.env.CLIENT_URL}/success-login?token=${token}`);
     } catch (error) {
         console.error("Error during Google OAuth callback:", error);
         res.status(500).json({ message: "Internal server error" });
@@ -78,7 +82,20 @@ export const googleCallback = (req, res) => {
 export const logout = async (req, res) => {
     res.clearCookie('token', {
         httpOnly: true,
-        sameSite: 'lax',
+        sameSite: 'strict',
     });
     res.status(200).json({ message: 'Logout successful' });
+}
+
+export const checkAuth = (req, res) => {
+    try {
+        console.log("req.user", req?.user);
+        if (!req.user) {
+            return res.status(401).json({ message: 'User not authenticated' });
+        }
+        res.status(200).json({ message: 'User is authenticated', user: req.user });
+    } catch (error) {
+        console.error("Error checking authentication:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
 }

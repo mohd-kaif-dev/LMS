@@ -53,10 +53,12 @@ passport.use(
     new JwtStrategy(opts, async (jwt_payload, done) => {
         try {
 
-            const user = await User.findById(jwt_payload.userId);
+            const user = await User.findById(jwt_payload.userId).select("-password");
             if (user) {
+
                 done(null, user);
             } else {
+
                 done(null, false);
             }
         } catch (err) {

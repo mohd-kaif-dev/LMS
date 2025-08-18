@@ -1,4 +1,4 @@
-import Course from "../models/course.model.js";
+import { Course } from "../models/course.model.js";
 import cloudinary from "../config/cloudinary.js";
 
 
@@ -75,7 +75,13 @@ export const togglePublishCourse = async (req, res) => {
 // Get all courses (admin only or public listing)
 export const getAllCourses = async (req, res) => {
     try {
-        const courses = await Course.find().populate("instructor", "name email");
+        const { category, page = 1, limit = 10 } = req.query;
+
+        const query = category ? { category } : {};
+        const courses = await Course.find(query)
+            .populate("instructor", "name email")
+            .limit(Number(limit))
+            .skip(Number(limit * (page - 1)));
         res.json(courses);
     } catch (err) {
         res.status(500).json({ message: err.message });

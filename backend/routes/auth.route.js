@@ -5,7 +5,8 @@ import passport from 'passport';
 const router = express.Router()
 
 // Importing the auth controller
-import { register, login, logout, getUser, googleCallback } from "../controllers/auth.controller.js"
+import { login, logout, getUser, googleCallback, checkAuth, signup } from "../controllers/auth.controller.js"
+import { protect } from "../middlewares/auth.middleware.js";
 
 // Start Google Login
 router.get('/google', passport.authenticate('google', {
@@ -17,8 +18,9 @@ router.get('/google/callback', passport.authenticate('google', { session: false 
 
 router.get('/user', passport.authenticate('jwt', { session: false }), getUser);
 
-router.post("/register", register)
+router.post("/signup", signup)
 router.post("/login", login)
 router.post("/logout", logout)
+router.get("/check", protect, checkAuth)
 
 export default router;

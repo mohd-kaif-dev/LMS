@@ -12,6 +12,7 @@ import authRoutes from "./routes/auth.route.js";
 import userRoutes from "./routes/user.route.js";
 import courseRoutes from "./routes/course.route.js";
 // import uploadRoutes from "./routes/upload.route.js";
+// import paymentRoutes from "./routes/payment.route.js";
 
 
 const app = express();
@@ -45,6 +46,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/courses", courseRoutes);
 // app.use("/api/uploads", uploadRoutes);
+// app.use("api/payment", paymentRoutes);
 
 app.get("/", (req, res) => {
     res.send("Welcome to LMS API!");

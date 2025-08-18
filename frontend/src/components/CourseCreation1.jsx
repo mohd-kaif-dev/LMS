@@ -19,7 +19,7 @@ const getAuthHeaders = () => {
     : {};
 };
 
-export default function CourseCreation() {
+export default function CourseCreation1() {
   const [step, setStep] = useState(1);
   const [courseId, setCourseId] = useState(null);
 
@@ -177,19 +177,19 @@ export default function CourseCreation() {
     }
   }, [courseId]);
 
-  // init lesson form for a section
-  const initLessonForm = (sectionId) => {
-    setLessonForms((prev) => ({
-      ...prev,
-      [sectionId]: prev[sectionId] || {
-        title: "",
-        description: "",
-        file: null,
-        uploading: false,
-        progress: 0,
-      },
-    }));
-  };
+  // // init lesson form for a section
+  // const initLessonForm = (sectionId) => {
+  //   setLessonForms((prev) => ({
+  //     ...prev,
+  //     [sectionId]: prev[sectionId] || {
+  //       title: "",
+  //       description: "",
+  //       file: null,
+  //       uploading: false,
+  //       progress: 0,
+  //     },
+  //   }));
+  // };
 
   const handleLessonFormChange = (sectionId, field, value) => {
     setLessonForms((prev) => ({
@@ -493,10 +493,6 @@ export default function CourseCreation() {
 
                   {/* add lesson form */}
                   <div className="mt-3 border-t pt-3">
-                    {(() => {
-                      initLessonForm(s._id);
-                      return null;
-                    })()}
                     <input
                       className="w-full p-2 mb-2 border rounded"
                       placeholder="Lesson title"
