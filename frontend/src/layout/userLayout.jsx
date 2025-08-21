@@ -1,20 +1,10 @@
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import Navbar from "../components/common/Navbar";
 import Footer from "../components/common/Footer";
-import { useEffect, useState } from "react";
-import { useAuthStore } from "../store/useAuthStore";
+import { useState } from "react";
 
 const UserLayout = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-  const { authUser } = useAuthStore();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!authUser) {
-      navigate("/sign-in");
-    }
-  }, [authUser, navigate]);
 
   // useEffect(() => {
   //   if (authUser.role !== "student") {
@@ -23,7 +13,7 @@ const UserLayout = () => {
   // });
 
   return (
-    <div className="montserrat-regular relative">
+    <div className=" relative">
       <Navbar isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} />
       <main className="min-h-screen">
         <Outlet />

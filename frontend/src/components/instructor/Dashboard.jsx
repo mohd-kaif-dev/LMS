@@ -6,6 +6,7 @@ import {
   TrendingUp,
   BarChart2,
 } from "lucide-react";
+import { useAuthStore } from "../../store/useAuthStore";
 
 // ======================================================================
 // StatCard Component - A reusable card for displaying a single metric
@@ -29,12 +30,14 @@ const StatCard = ({ icon, title, value, description, color }) => {
 // InstructorDashboard Component - The main dashboard container
 // ======================================================================
 const InstructorDashboard = () => {
+  const { authUser } = useAuthStore();
+
   return (
     <div className="bg-gray-900 min-h-screen text-white font-sans antialiased p-8">
       <div className="container mx-auto">
         {/* Header */}
         <h1 className="text-4xl md:text-5xl font-bold mb-2">
-          Instructor Dashboard
+          {authUser?.name.split(" ")[0]}&apos;s Dashboard
         </h1>
         <p className="text-lg text-gray-400 mb-12">
           An overview of your teaching performance and courses.
@@ -45,7 +48,7 @@ const InstructorDashboard = () => {
           <StatCard
             icon={<BookOpen size={24} />}
             title="Total Courses"
-            value="15"
+            value={authUser?.totalCourses}
             description="Published and available to students."
             color="bg-purple-600"
           />
@@ -59,14 +62,14 @@ const InstructorDashboard = () => {
           <StatCard
             icon={<Users size={24} />}
             title="Enrolled Students"
-            value="12,450"
+            value={authUser?.totalStudents}
             description="Total students enrolled in your courses."
             color="bg-blue-600"
           />
           <StatCard
             icon={<TrendingUp size={24} />}
             title="Avg. Course Rating"
-            value="4.8/5"
+            value={authUser?.rating}
             description="Average rating across all your courses."
             color="bg-green-600"
           />

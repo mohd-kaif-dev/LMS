@@ -32,6 +32,12 @@ import AdminAnalytics from "./components/admin/AdminAnalytics";
 import InstructorAnalytics from "./components/instructor/Analytics";
 import InstructorProfile from "./components/instructor/Profile";
 import StudentProfile from "./components/students/Profile";
+import CartPage from "./pages/CartPage";
+import OrderConfirmation from "./pages/OrderConfirmation";
+import PurchaseFailure from "./pages/PurchaseFailure";
+import CategoryDisplay from "./pages/Category";
+import FullCoursePage from "./pages/VideoPlayer";
+import VideoPlayerPage from "./pages/VideoPlayer";
 
 const App = () => {
   // const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
@@ -51,25 +57,26 @@ const App = () => {
   // console.log("authUser", authUser);
 
   return (
-    <BrowserRouter>
-      <Toaster />
+    <div className="montserrat-regular">
+      <Toaster position="top-right" />
       <Routes>
-        <Route element={<Layout />}>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/success-login" element={<SuccessLogin />} />
-
-          {/* <Route path="/course/:courseId" element={<CourseDetailsPage />} /> */}
-        </Route>
-        <Route element={<UserLayout />}>
+        <Route path="/" element={<UserLayout />}>
           <Route index element={<Home />} />
-          <Route path="/sign-in" element={<SignIn />} />
-          <Route path="/sign-up" element={<SignUp />} />
-          <Route path="/student/dashboard" element={<Dashboard />} />
-          <Route path="/student/my-enrollments" element={<MyEnrollement />} />
-          <Route path="/course/:courseId" element={<CourseDetails />} />
-          <Route path="/profile" element={<StudentProfile />} />
+          <Route path="sign-in" element={<SignIn />} />
+          <Route path="sign-up" element={<SignUp />} />
+          <Route path="success-login" element={<SuccessLogin />} />
+          <Route path="student/dashboard" element={<Dashboard />} />
+          <Route path="student/my-enrollments" element={<MyEnrollement />} />
+          <Route path="course/:courseId" element={<CourseDetails />} />
+          <Route path="student/profile" element={<StudentProfile />} />
+          <Route path="cart/:title" element={<CartPage />} />
+          <Route path="purchase-success" element={<OrderConfirmation />} />
+          <Route path="purchase-failure" element={<PurchaseFailure />} />
+          <Route path="category/:category" element={<CategoryDisplay />} />
+          <Route
+            path="courses/:title/learn/:lectureId"
+            element={<VideoPlayerPage />}
+          />
         </Route>
         <Route path="/instructor" element={<InstructorLayout />}>
           <Route path="dashboard" element={<InstructorDashboard />} />
@@ -86,7 +93,7 @@ const App = () => {
           <Route path="settings" element={<Settings />} />
         </Route>
       </Routes>
-    </BrowserRouter>
+    </div>
   );
 };
 

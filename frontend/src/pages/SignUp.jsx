@@ -57,7 +57,7 @@ const SignUp = () => {
             Welcome
           </h1>
           <p className="text-gray-600 text-center mb-8 text-lg font-semibold">
-            Sign Up to <span className="text-green-500">Learn</span>Sphere
+            Sign Up to <span className="text-blue-500">Learn</span>Sphere
           </p>
 
           <form onSubmit={handleSignUp} className="space-y-6">
@@ -77,7 +77,7 @@ const SignUp = () => {
                 name="fullName"
                 value={formData.fullName}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
             </div>
@@ -97,7 +97,7 @@ const SignUp = () => {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
             </div>
@@ -118,7 +118,7 @@ const SignUp = () => {
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 pr-12"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 pr-12"
                 required
               />
               <button
@@ -133,7 +133,7 @@ const SignUp = () => {
             {/* Continue Button */}
             <button
               type="submit"
-              className="w-full flex items-start justify-center bg-green-500 text-white font-semibold rounded-lg py-3 px-6  hover:bg-green-600 transition-colors duration-200 shadow-md"
+              className="w-full flex items-start justify-center bg-blue-500 text-white font-semibold rounded-lg py-3 px-6  hover:bg-blue-600 transition-colors duration-200 shadow-md"
             >
               {isSigningUp ? (
                 <FaSpinner size={20} className="animate-spin" />

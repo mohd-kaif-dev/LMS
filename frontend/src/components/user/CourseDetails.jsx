@@ -1,241 +1,200 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Star,
   PlayCircle,
-  Clock,
-  Download,
-  FileText,
-  Smartphone,
-  Award,
   ChevronDown,
   CheckCircle,
   ChevronUp,
+  Loader2,
+  Share2,
+  Clock,
+  Video,
+  FileText,
+  Award,
+  Smartphone,
+  Infinity,
 } from "lucide-react";
+import { useNavigate, useParams } from "react-router-dom";
+import useCourseStore from "../../store/useCourseStore";
 
 // ======================================================================
-// AccordionItem Component - Reusable component for the course structure
+// Helper & UI Components
 // ======================================================================
-const AccordionItem = ({ section, isOpen, onClick }) => {
-  return (
-    <div className="border border-gray-700 rounded-lg overflow-hidden mb-2">
-      <button
-        className="flex items-center justify-between w-full p-4 text-white hover:bg-gray-700 transition-colors duration-200"
-        onClick={onClick}
-      >
-        <span className="flex items-center space-x-2">
-          {isOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-          <span className="font-semibold text-lg">{section.title}</span>
-        </span>
-        <span className="text-sm text-gray-400">
-          {section.lessons.length} lectures • {section.duration}
-        </span>
-      </button>
-      {isOpen && (
-        <div className="p-4 bg-gray-800 border-t border-gray-700">
-          {section.lessons.map((lesson, index) => (
-            <div
-              key={index}
-              className="flex items-center justify-between py-2 text-gray-300 border-b border-gray-700 last:border-b-0"
-            >
-              <div className="flex items-center space-x-3">
-                <PlayCircle size={16} />
-                <span>{lesson.title}</span>
-              </div>
-              <span className="text-xs text-gray-400">{lesson.duration}</span>
-            </div>
-          ))}
+
+const GlassCard = ({ children, className = "" }) => (
+  <div
+    className={`bg-slate-800/40 backdrop-blur-lg border border-slate-700/50 rounded-2xl shadow-2xl shadow-black/20 ${className}`}
+  >
+    {children}
+  </div>
+);
+
+const AccordionItem = ({ section, isOpen, onClick }) => (
+  <div className="bg-slate-800/50 border border-slate-700 rounded-lg overflow-hidden transition-all duration-300">
+    <button
+      className="flex items-center justify-between w-full p-4 text-left hover:bg-slate-700/50"
+      onClick={onClick}
+    >
+      <span className="font-semibold text-slate-100">{section.title}</span>
+      <div className="flex items-center gap-4 text-sm text-slate-400">
+        <span>{section.lessons.length} lectures</span>
+        <ChevronUp
+          size={20}
+          className={`transform transition-transform duration-300 ${
+            isOpen ? "rotate-180" : ""
+          }`}
+        />
+      </div>
+    </button>
+    <div
+      className={`grid transition-all duration-500 ease-in-out ${
+        isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+      }`}
+    >
+      <div className="overflow-hidden">
+        <div className="p-4 border-t border-slate-700">
+          <ul className="space-y-3">
+            {section.lessons.map((lesson, index) => (
+              <li
+                key={index}
+                className="flex items-center justify-between text-slate-300"
+              >
+                <span className="flex items-center gap-3">
+                  <PlayCircle size={16} className="text-slate-500" />
+                  {lesson.title}
+                </span>
+                <span className="text-xs text-slate-400">
+                  {lesson.duration}
+                </span>
+              </li>
+            ))}
+          </ul>
         </div>
-      )}
+      </div>
     </div>
-  );
-};
+  </div>
+);
 
 // ======================================================================
-// CourseDetail Component - The main page for course details
+// CourseDetails Component - The main page
 // ======================================================================
 const CourseDetails = () => {
   const [openSection, setOpenSection] = useState(0);
+  const { courseId } = useParams();
+  const navigate = useNavigate();
+  const { selectedCourse, fetchCourseById, isFetching } = useCourseStore();
+
+  useEffect(() => {
+    fetchCourseById(courseId);
+    window.scrollTo(0, 0);
+  }, [fetchCourseById, courseId]);
 
   const toggleSection = (index) => {
     setOpenSection(openSection === index ? null : index);
   };
 
-  //   const courseId = new URLSearchParams(window.location.search).get("id");
-
-  const courseData = {
-    title: "Complete web development course",
-    subtitle:
-      "Only web development course that you will need. Covers HTML, CSS, Tailwind, Node, React, MongoDB, Prisma, Deployment etc",
-    author: "Hitesh Choudhary",
-    lastUpdated: "06/2025",
-    rating: 4.6,
-    ratingsCount: "14,385",
-    learners: "51,909",
-    whatYoullLearn: [
-      "Become a full stack developer",
-      "Master of Javascript ecosystem",
-      "Build any project for your company or for freelance projects",
-      "Full stack with MERN, GIT and many advance tools",
-    ],
-    courseIncludes: [
-      { icon: <Clock size={20} />, text: "86.5 hours on-demand video" },
-      { icon: <Download size={20} />, text: "29 downloadable resources" },
-      { icon: <Smartphone size={20} />, text: "Access on mobile and TV" },
-      { icon: <FileText size={20} />, text: "45 coding exercises" },
-      { icon: <FileText size={20} />, text: "5 articles" },
-      { icon: <Award size={20} />, text: "Certificate of completion" },
-    ],
-    courseContent: [
-      {
-        title: "Before web dev Journey",
-        duration: "1h 1min",
-        lessons: [
-          { title: "Course Introduction - Roadmap", duration: "11:26" },
-          { title: "Meet your Instructor - Hitesh", duration: "05:26" },
-          { title: "Lets talk about AI hype", duration: "06:11" },
-          { title: "Jobs salary range and skills", duration: "10:21" },
-          {
-            title: "What tools you need for web development",
-            duration: "09:50",
-          },
-          { title: "How to setup your code editor", duration: "18:04" },
-        ],
-      },
-      {
-        title: "Code files - Download here",
-        duration: "1min",
-        lessons: [{ title: "Code files to download", duration: "01:00" }],
-      },
-      {
-        title: "Basics of web development",
-        duration: "23min",
-        lessons: [
-          { title: "HTML crash course", duration: "12:00" },
-          { title: "CSS essentials", duration: "08:00" },
-          { title: "JavaScript basics", duration: "03:00" },
-        ],
-      },
-      {
-        title: "Learn HTML",
-        duration: "44min",
-        lessons: [
-          { title: "HTML Intro", duration: "10:00" },
-          { title: "HTML Basic", duration: "12:00" },
-          { title: "HTML Advanced", duration: "22:00" },
-        ],
-      },
-    ],
+  const formatDuration = (totalSeconds) => {
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    return `${hours}h ${minutes}m`;
   };
 
+  if (isFetching || !selectedCourse) {
+    return (
+      <div className="bg-slate-900 min-h-screen flex items-center justify-center">
+        <Loader2 className="w-16 h-16 animate-spin text-blue-500" />
+      </div>
+    );
+  }
+
+  const discountPercentage = Math.floor(
+    ((selectedCourse.originalPrice - selectedCourse.price) /
+      selectedCourse.originalPrice) *
+      100
+  );
+
+  const courseIncludes = [
+    {
+      icon: <Video size={18} />,
+      text: `${formatDuration(selectedCourse.totalDuration)} on-demand video`,
+    },
+    { icon: <FileText size={18} />, text: "Downloadable resources" },
+    { icon: <Smartphone size={18} />, text: "Access on mobile and TV" },
+    { icon: <Infinity size={18} />, text: "Full lifetime access" },
+    { icon: <Award size={18} />, text: "Certificate of completion" },
+  ];
+
   return (
-    <div className="bg-gray-900 min-h-screen text-white font-sans antialiased">
-      {/* Hero Section */}
-      <div className="bg-gray-800 py-12">
-        <div className="container mx-auto px-4 md:px-8">
-          <div className="flex flex-col lg:flex-row lg:space-x-8">
-            {/* Left Content */}
-            <div className="flex-1">
-              <h1 className="text-4xl md:text-5xl font-bold mb-4">
-                {courseData.title}
-              </h1>
-              <p className="text-xl text-gray-300 mb-4">
-                {courseData.subtitle}
-              </p>
-              <p className="text-gray-400 mb-2">
+    <div className="bg-slate-900 text-slate-200 font-sans">
+      {/* --- Hero Section --- */}
+      <div className="relative bg-slate-800 text-white py-16 md:py-24 px-4 overflow-hidden">
+        <img
+          src={selectedCourse.thumbnailUrl}
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover blur-lg scale-110 opacity-30"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/70 to-transparent"></div>
+        <div className="container mx-auto relative z-10">
+          <div className="max-w-3xl">
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">
+              {selectedCourse.title}
+            </h1>
+            <p className="text-xl text-slate-300 mb-6">
+              {selectedCourse.description}
+            </p>
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-yellow-400">
+                  {selectedCourse.rating}
+                </span>
+                <Star size={16} className="text-yellow-400 fill-current" />
+                <span className="text-slate-400">
+                  ({selectedCourse.numReviews.toLocaleString()} ratings)
+                </span>
+              </div>
+              <span className="text-slate-300">
+                {selectedCourse.studentsEnrolled.length.toLocaleString()}{" "}
+                students
+              </span>
+              <span className="text-slate-400">
                 Created by{" "}
-                <span className="text-blue-500 font-semibold">
-                  {courseData.author}
-                </span>
-              </p>
-              <p className="text-gray-400 mb-6">
-                Last updated {courseData.lastUpdated}
-              </p>
-
-              {/* Ratings and Learners */}
-              <div className="flex items-center space-x-6 mb-8">
-                <div className="flex items-center">
-                  <span className="text-yellow-400 font-bold text-xl mr-1">
-                    {courseData.rating}
-                  </span>
-                  <Star
-                    size={18}
-                    fill="currentColor"
-                    className="text-yellow-400"
-                  />
-                </div>
-                <span className="text-gray-400">
-                  {courseData.ratingsCount} ratings
-                </span>
-                <span className="text-gray-400">
-                  {courseData.learners} learners
-                </span>
-              </div>
-
-              {/* What you'll learn */}
-              <div className="mb-8">
-                <h2 className="text-3xl font-bold mb-4">What you'll learn</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {courseData.whatYoullLearn.map((item, index) => (
-                    <div key={index} className="flex items-start space-x-3">
-                      <CheckCircle
-                        size={20}
-                        className="text-blue-500 mt-1 flex-shrink-0"
-                      />
-                      <p className="text-gray-300">{item}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Course includes */}
-              <div className="mb-8">
-                <h2 className="text-3xl font-bold mb-4">
-                  This course includes:
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {courseData.courseIncludes.map((item, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center space-x-3 text-gray-300"
-                    >
-                      {item.icon}
-                      <span>{item.text}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Right Sidebar - Video Player and Pricing */}
-            <div className="lg:w-96 mt-8 lg:mt-0 bg-gray-900 rounded-xl shadow-lg p-6">
-              <div className="aspect-video mb-4 rounded-lg overflow-hidden">
-                <div className="w-full h-full bg-black flex items-center justify-center">
-                  <PlayCircle size={64} className="text-blue-500" />
-                </div>
-              </div>
-              <h2 className="text-3xl font-bold mb-4">Price goes here</h2>
-              <button className="w-full py-3 rounded-full bg-blue-500 text-black font-semibold hover:bg-blue-600 transition-colors duration-200 mb-2">
-                Buy now
-              </button>
-              <button className="w-full py-3 rounded-full bg-gray-700 text-white font-semibold hover:bg-gray-600 transition-colors duration-200">
-                Add to cart
-              </button>
+                <a href="#" className="text-blue-400 hover:underline">
+                  {selectedCourse.instructor.name}
+                </a>
+              </span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Main Content Section */}
-      <div className="container mx-auto px-4 md:px-8 py-12">
-        <div className="flex flex-col lg:flex-row lg:space-x-8">
-          {/* Left Content - Course Structure */}
-          <div className="flex-1">
-            <h2 className="text-3xl font-bold mb-6">Course content</h2>
-            <div className="mb-4 text-gray-400">
-              34 sections • 268 lectures • 86h 16m total length
-            </div>
+      {/* --- Main Content --- */}
+      <div className="container mx-auto px-4 py-12">
+        <div className="flex flex-col lg:flex-row gap-8">
+          {/* Left Column */}
+          <div className="w-full lg:w-2/3 space-y-8">
+            <GlassCard className="p-6">
+              <h2 className="text-2xl font-bold mb-4">What you'll learn</h2>
+              <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
+                {selectedCourse.learningOutcomes.map((item, index) => (
+                  <li key={index} className="flex items-start gap-3">
+                    <CheckCircle
+                      size={18}
+                      className="text-blue-400 mt-1 flex-shrink-0"
+                    />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </GlassCard>
+
             <div className="space-y-4">
-              {courseData.courseContent.map((section, index) => (
+              <h2 className="text-2xl font-bold">Course content</h2>
+              <p className="text-sm text-slate-400">
+                {selectedCourse.sections.length} sections •{" "}
+                {selectedCourse.totalLectures} lectures •{" "}
+                {formatDuration(selectedCourse.totalDuration)} total length
+              </p>
+              {selectedCourse.sections.map((section, index) => (
                 <AccordionItem
                   key={index}
                   section={section}
@@ -244,12 +203,81 @@ const CourseDetails = () => {
                 />
               ))}
             </div>
+
+            <GlassCard className="p-6">
+              <h2 className="text-2xl font-bold mb-4">Requirements</h2>
+              <ul className="list-disc list-inside space-y-2 text-slate-300">
+                {selectedCourse.requirements.map((req, i) => (
+                  <li key={i}>{req}</li>
+                ))}
+              </ul>
+            </GlassCard>
+
+            <GlassCard className="p-6">
+              <h2 className="text-2xl font-bold mb-4">Description</h2>
+              <p className="text-slate-300 whitespace-pre-line">
+                {selectedCourse.detailedDescription}
+              </p>
+            </GlassCard>
           </div>
 
-          {/* Right Sidebar - Pricing and other info (for smaller screens) */}
-          <div className="lg:hidden mt-8">
-            <div className="bg-gray-800 rounded-xl shadow-lg p-6">
-              {/* ... The same pricing box content as above ... */}
+          {/* Right Column (Sticky Sidebar) */}
+          <div className="w-full lg:w-1/3">
+            <div className="sticky top-8 space-y-4">
+              <GlassCard className="overflow-hidden">
+                <div className="aspect-video bg-black flex items-center justify-center">
+                  <PlayCircle
+                    size={64}
+                    className="text-white/50 hover:text-white/80 transition-colors cursor-pointer"
+                  />
+                </div>
+                <div className="p-6">
+                  <div className="flex items-baseline gap-3 mb-4">
+                    <span className="text-3xl font-bold text-white">
+                      ₹{selectedCourse.price.toLocaleString()}
+                    </span>
+                    <span className="text-lg text-slate-400 line-through">
+                      ₹{selectedCourse.originalPrice.toLocaleString()}
+                    </span>
+                    <span className="text-base font-semibold text-green-400">
+                      {discountPercentage}% off
+                    </span>
+                  </div>
+                  <button
+                    onClick={() =>
+                      navigate(
+                        `/cart/${selectedCourse?.title.replace(/\s+/g, "-")}`,
+                        {
+                          state: {
+                            id: selectedCourse?._id,
+                          },
+                        }
+                      )
+                    }
+                    className="w-full group flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold text-lg hover:scale-105 transition-transform duration-300"
+                  >
+                    Enroll Now
+                  </button>
+                  <p className="text-xs text-slate-400 text-center mt-3">
+                    30-Day Money-Back Guarantee
+                  </p>
+                </div>
+              </GlassCard>
+              <GlassCard className="p-6">
+                <h3 className="font-bold text-lg mb-4">
+                  This course includes:
+                </h3>
+                <ul className="space-y-3 text-sm">
+                  {courseIncludes.map((item, i) => (
+                    <li key={i} className="flex items-center gap-3">
+                      {React.cloneElement(item.icon, {
+                        className: "text-slate-400",
+                      })}
+                      <span>{item.text}</span>
+                    </li>
+                  ))}
+                </ul>
+              </GlassCard>
             </div>
           </div>
         </div>

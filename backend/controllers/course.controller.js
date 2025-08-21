@@ -1,4 +1,5 @@
-import { Course } from "../models/course.model.js";
+import Course from "../models/course.model.js";
+import User from "../models/user.model.js";
 import cloudinary from "../config/cloudinary.js";
 
 
@@ -75,18 +76,45 @@ export const togglePublishCourse = async (req, res) => {
 // Get all courses (admin only or public listing)
 export const getAllCourses = async (req, res) => {
     try {
-        const { category, page = 1, limit = 10 } = req.query;
+        const { category = "", page = 1, limit = 10, searchTerm } = req.query;
 
-        const query = category ? { category } : {};
-        const courses = await Course.find(query)
+        // ----- COURSE QUERY -----
+        const courseQuery = {};
+        if (category) courseQuery.category = category;
+
+        if (searchTerm) {
+            courseQuery.$or = [
+                { title: { $regex: searchTerm, $options: "i" } },
+                { description: { $regex: searchTerm, $options: "i" } },
+                { category: { $regex: searchTerm, $options: "i" } },
+            ];
+        }
+        const courses = await Course.find(courseQuery)
             .populate("instructor", "name email")
             .limit(Number(limit))
-            .skip(Number(limit * (page - 1)));
-        res.json(courses);
+            .skip(Number(limit) * (page - 1));
+
+        // ----- INSTRUCTOR QUERY -----
+        let instructors = [];
+        if (searchTerm) {
+            instructors = await User.find({
+                role: "instructor",
+                name: { $regex: searchTerm, $options: "i" },
+            })
+                .select("name email profilePicture") // only select needed fields
+                .limit(5);
+        }
+
+
+        res.json({ courses, instructors });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
+
+
 };
+
+
 
 // Get single course by ID
 export const getCourseById = async (req, res) => {
@@ -143,9 +171,12 @@ export const enrollInCourse = async (req, res) => {
 // Get enrolled courses for a user
 export const getMyEnrolledCourses = async (req, res) => {
     try {
-        const courses = await Course.find({ studentsEnrolled: req.user.userId }).populate("instructor", "name email");
+        console.log("inside here", req.user._id)
+        const userId = req.user._id;
+        const courses = await Course.find({ studentsEnrolled: userId }).populate("instructor", "name email");
         res.json(courses);
     } catch (error) {
+        console.log("Error in getMyEnrolledCourses controller: ", error);
         res.status(500).json({ message: error.message });
     }
 };
@@ -322,10 +353,13 @@ export const addLessonWithVideo = async (req, res) => {
 
 export const getInstructorAllCourses = async (req, res) => {
     try {
-        const instructorId = req.user.userId;
-        const courses = await Course.find({ instructor: instructorId }).populate("instructor", "name");
+        const instructor = req.user._id;
+
+        const courses = await Course.find({ instructor }).populate("instructor", "name");
         res.json(courses);
+
     } catch (error) {
+        console.log("Error in getInstructorCourses controller: ", error);
         res.status(500).json({ message: "Failed to fetch courses", error: error.message });
     }
 }

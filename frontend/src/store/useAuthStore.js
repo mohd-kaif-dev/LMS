@@ -19,7 +19,11 @@ export const useAuthStore = create(
 
             checkAuth: async () => {
                 try {
-                    const res = await axios.get(`${BASE_API}/api/auth/check`);
+                    const res = await axios.get(`${BASE_API}/api/auth/check`, {
+                        headers: {
+                            "ngrok-skip-browser-warning": "true"
+                        }
+                    });
                     console.log("res store", res.data);
                     set({ authUser: res.data.user });
                 } catch (error) {
@@ -33,7 +37,10 @@ export const useAuthStore = create(
                 try {
                     set({ isSigningUp: true });
                     const res = await axios.post(`${BASE_API}/api/auth/signup`, data, {
-                        withCredentials: true
+                        withCredentials: true,
+                        headers: {
+                            "ngrok-skip-browser-warning": "true"
+                        }
                     });
                     console.log("res", res.data);
                     set({ authUser: res.data.user });
@@ -49,7 +56,10 @@ export const useAuthStore = create(
                 try {
                     set({ isSigningIn: true });
                     const res = await axios.post(`${BASE_API}/api/auth/login`, data, {
-                        withCredentials: true
+                        withCredentials: true,
+                        headers: {
+                            "ngrok-skip-browser-warning": "true"
+                        }
                     });
 
                     set({ authUser: res.data.user });
@@ -80,7 +90,12 @@ export const useAuthStore = create(
             getUser: async () => {
                 try {
                     set({ isSigningIn: true })
-                    const res = await axios.get(`${BASE_API}/api/auth/user`, { withCredentials: true })
+                    const res = await axios.get(`${BASE_API}/api/auth/user`, {
+                        withCredentials: true,
+                        headers: {
+                            "ngrok-skip-browser-warning": "true"
+                        }
+                    })
                     set({ authUser: res.data.user })
                     return { success: true }
                 } catch (error) {
@@ -94,6 +109,7 @@ export const useAuthStore = create(
             },
             logout: async () => {
                 try {
+
                     const res = await axios.post(`${BASE_API}/api/auth/logout`, {}, {
                         withCredentials: true
                     })

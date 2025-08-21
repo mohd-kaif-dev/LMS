@@ -21,6 +21,9 @@ const router = express.Router();
 
 //------ Public
 router.get("/", getAllCourses);
+router.get("/instructor", protect, getInstructorAllCourses);
+
+
 // Get single course
 router.get("/:id", getCourseById);
 
@@ -46,6 +49,6 @@ router.put('/:courseId/sections/:sectionId/lessons', protect, uploadVideo.single
 
 router.delete('/:courseId/sections/:sectionId/lessons/:lessonId', protect, deleteLessonVideo);
 
-router.get("/", protect, getInstructorAllCourses);
+
 
 export default router;

@@ -6,7 +6,7 @@ import FAQs from "../components/user/FAQs";
 
 const Home = () => {
   return (
-    <div>
+    <div className="h-full">
       <Hero />
       <CategoryMarquee />
       <Stats />

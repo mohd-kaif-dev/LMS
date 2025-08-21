@@ -1,47 +1,144 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { BookOpen, Star, TrendingUp, CheckCircle } from "lucide-react";
+import useCourseStore from "../../store/useCourseStore";
 
 // ======================================================================
 // CourseCard Component - A reusable card for displaying an enrolled course
 // ======================================================================
-const EnrolledCourseCard = ({ course }) => {
+// EnrolledCourseCard.jsx
+
+import { Clock, Layers, BarChart3, PlayCircle } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+
+// Helper component for the circular progress bar
+const CircularProgress = ({ progress, size = 60, strokeWidth = 5 }) => {
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference - (progress / 100) * circumference;
+
   return (
-    <div className="bg-gray-800 rounded-xl overflow-hidden shadow-lg p-6 transition-transform duration-200 hover:scale-[1.02]">
-      <div className="relative mb-4">
-        {/* Course Image */}
-        <img
-          src={course.imageUrl}
-          alt={course.title}
-          className="w-full h-40 object-cover rounded-md"
+    <div
+      className="relative flex items-center justify-center"
+      style={{ width: size, height: size }}
+    >
+      <svg className="transform -rotate-90" width={size} height={size}>
+        <circle
+          className="text-slate-700"
+          stroke="currentColor"
+          strokeWidth={strokeWidth}
+          fill="transparent"
+          r={radius}
+          cx={size / 2}
+          cy={size / 2}
         />
-        {/* Progress Bar */}
-        <div className="absolute bottom-2 left-0 right-0 h-2 bg-gray-700 mx-4 rounded-full">
-          <div
-            className="h-full bg-blue-500 rounded-full transition-all duration-500"
-            style={{ width: `${course.progress}%` }}
-          ></div>
+        <circle
+          className="text-cyan-500 transition-all duration-500 ease-in-out"
+          stroke="currentColor"
+          strokeWidth={strokeWidth}
+          strokeDasharray={circumference}
+          strokeDashoffset={offset}
+          strokeLinecap="round"
+          fill="transparent"
+          r={radius}
+          cx={size / 2}
+          cy={size / 2}
+        />
+      </svg>
+      <span className="absolute text-sm font-semibold text-slate-200">
+        {`${progress}%`}
+      </span>
+    </div>
+  );
+};
+
+// Helper function to format seconds into a readable string (e.g., "3h 30m")
+const formatDuration = (totalSeconds) => {
+  if (totalSeconds < 60) return "Less than a minute";
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  let result = "";
+  if (hours > 0) result += `${hours}h `;
+  if (minutes > 0) result += `${minutes}m`;
+  return result.trim();
+};
+
+const EnrolledCourseCard = ({ course }) => {
+  // Calculate total lessons from the course data
+  const navigate = useNavigate();
+
+  const totalLessons = course.sections.reduce(
+    (acc, section) => acc + (section.lessons?.length || 0),
+    0
+  );
+
+  // Format the total duration
+  const courseDuration = formatDuration(course.totalDuration);
+
+  return (
+    <div
+      onClick={() =>
+        navigate(
+          `/courses/${course.title.replace(/\s+/g, "-").toLowerCase()}/learn/${
+            course.sections[0].lessons[0]._id
+          }`
+        )
+      }
+      className="group bg-slate-800/50 border border-slate-700 rounded-2xl overflow-hidden shadow-lg 
+                   transition-all duration-300 hover:shadow-cyan-500/20 hover:-translate-y-1"
+    >
+      {/* --- Image and Category Badge --- */}
+      <div className="relative">
+        <img
+          src={course.thumbnailUrl}
+          alt={course.title}
+          className="w-full h-48 object-cover"
+        />
+        {/* Overlay with play button on hover */}
+        <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <PlayCircle size={64} className="text-white/80" />
         </div>
+        <span className="absolute top-4 right-4 bg-cyan-600 text-white text-xs font-bold uppercase px-3 py-1 rounded-full">
+          {course.category}
+        </span>
       </div>
 
-      {/* Course Details */}
-      <div className="relative">
-        <h3 className="text-xl font-semibold text-white mb-2">
+      {/* --- Course Content --- */}
+      <div className="p-5">
+        <h3
+          className="text-xl font-bold text-slate-100 mb-1 truncate"
+          title={course.title}
+        >
           {course.title}
         </h3>
-        <p className="text-sm text-gray-400 mb-2">by {course.author}</p>
+        <p className="text-sm text-slate-400 mb-4">
+          by {course.instructor.name}
+        </p>
 
-        {/* Progress and completion status */}
-        <div className="flex items-center justify-between text-sm text-gray-400 mt-4">
-          <div className="flex items-center space-x-2">
-            <TrendingUp size={16} />
-            <span>{course.progress}% Complete</span>
+        {/* --- Informative Badges --- */}
+        <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-slate-300 mb-5">
+          <div className="flex items-center gap-2">
+            <BarChart3 size={16} className="text-cyan-500" />
+            <span className="capitalize">{course.dificulty}</span>
           </div>
-          {course.progress === 100 && (
-            <div className="flex items-center space-x-1 text-blue-500">
-              <CheckCircle size={16} />
-              <span>Completed</span>
-            </div>
-          )}
+          <div className="flex items-center gap-2">
+            <Layers size={16} className="text-cyan-500" />
+            <span>{totalLessons} Lessons</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Clock size={16} className="text-cyan-500" />
+            <span>{courseDuration}</span>
+          </div>
+        </div>
+
+        {/* --- Progress Section --- */}
+        <div className="flex items-center justify-between">
+          <div className="flex flex-col">
+            <span className="text-slate-400 text-sm">Progress</span>
+            <span className="text-slate-100 font-semibold">
+              {course.progress === 100 ? "Completed!" : "Keep going!"}
+            </span>
+          </div>
+          <CircularProgress progress={course.progress} />
         </div>
       </div>
     </div>
@@ -52,44 +149,11 @@ const EnrolledCourseCard = ({ course }) => {
 // MyEnrollement Component - The main page for enrolled students
 // ======================================================================
 const MyEnrollement = () => {
-  // Mock data for enrolled courses
-  const enrolledCourses = [
-    {
-      id: 1,
-      title: "Introduction to Web Design",
-      author: "Jane Doe",
-      imageUrl: "https://placehold.co/400x250/1F2937/ffffff?text=Course+1",
-      progress: 75,
-    },
-    {
-      id: 2,
-      title: "Advanced JavaScript Concepts",
-      author: "John Smith",
-      imageUrl: "https://placehold.co/400x250/1F2937/ffffff?text=Course+2",
-      progress: 100,
-    },
-    {
-      id: 3,
-      title: "Creative Photography Basics",
-      author: "Emily White",
-      imageUrl: "https://placehold.co/400x250/1F2937/ffffff?text=Course+3",
-      progress: 25,
-    },
-    {
-      id: 4,
-      title: "Digital Marketing 101",
-      author: "Michael Brown",
-      imageUrl: "https://placehold.co/400x250/1F2937/ffffff?text=Course+4",
-      progress: 50,
-    },
-    {
-      id: 5,
-      title: "Figma UI/UX Design Fundamentals",
-      author: "Sarah Lee",
-      imageUrl: "https://placehold.co/400x250/1F2937/ffffff?text=Course+5",
-      progress: 90,
-    },
-  ];
+  const { courses, fetchStudentEnrolledCourses, isFetching } = useCourseStore();
+
+  useEffect(() => {
+    fetchStudentEnrolledCourses();
+  }, [fetchStudentEnrolledCourses]);
 
   return (
     <div className="bg-gray-900 min-h-screen text-white font-sans antialiased p-8">
@@ -101,11 +165,22 @@ const MyEnrollement = () => {
         </p>
 
         {/* Enrolled Courses Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {enrolledCourses.map((course) => (
-            <EnrolledCourseCard key={course.id} course={course} />
-          ))}
-        </div>
+        {!isFetching ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {courses.map((course) => (
+              <EnrolledCourseCard key={course.id} course={course} />
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(3)].map((_, index) => (
+              <div
+                key={index}
+                className="bg-gray-700 rounded-md h-40 animate-pulse"
+              ></div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

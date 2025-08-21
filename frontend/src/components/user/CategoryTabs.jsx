@@ -7,6 +7,7 @@ import CourseCard from "./CourseCard";
 // import CourseImage4 from "../../assets/CourseImage4.webp";
 import useCourseStore from "../../store/useCourseStore";
 import { FaSpinner } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 const categories = [
   { name: "Featured", slug: "featured" },
@@ -75,7 +76,7 @@ const categories = [
 
 const CategoryTabs = () => {
   const [activeTab, setActiveTab] = useState("featured");
-
+  const navigate = useNavigate();
   const { courses, fetchCourses, isFetching } = useCourseStore();
 
   const filteredCourses = courses.filter(
@@ -83,12 +84,12 @@ const CategoryTabs = () => {
   );
 
   useEffect(() => {
-    fetchCourses({ category: activeTab });
+    fetchCourses({ category: activeTab, limit: 4 });
   }, [fetchCourses, activeTab]);
 
   return (
-    <section className="bg-black text-white p-2 md:p-8 ld:p-16">
-      <div className="container mx-auto px-0 md:px-8">
+    <section className="bg-black text-white p-2 md:p-8 ld:p-16 rounded-xl">
+      <div className="container mx-auto px-0 md:px-8 flex flex-col">
         {/* Section Header */}
         <h2 className="text-4xl mb-8 text-center michroma-regular">
           Explore Inspiring Online Courses
@@ -111,6 +112,13 @@ const CategoryTabs = () => {
           ))}
         </div>
 
+        <button
+          onClick={() => navigate(`/category/${activeTab}`)}
+          className="text-sm font-semibold px-4 py-2 rounded-xl border border-blue-500 text-white hover:bg-blue-600 transition-colors duration-200 self-end mb-4"
+        >
+          View All
+        </button>
+
         {/* Course Cards */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-6">
           {!isFetching ? (
@@ -119,12 +127,17 @@ const CategoryTabs = () => {
                 <CourseCard key={course._id} course={course} />
               ))
             ) : (
-              <div>No Courses Found!!</div>
+              <div className="col-span-4 text-center my-16">
+                No Courses Found!!
+              </div>
             )
           ) : (
-            <div className="min-h-screen col-span-4 flex justify-center">
-              <FaSpinner className="animate-spin" size={32} />
-            </div>
+            [...Array(4)].map((_, index) => (
+              <div
+                key={index}
+                className="w-full h-64 bg-gray-500 animate-pulse rounded-lg"
+              ></div>
+            ))
           )}
         </div>
       </div>

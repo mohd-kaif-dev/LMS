@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  BrowserRouter,
-  NavLink,
-  Routes,
-  Route,
-  useNavigate,
-} from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import {
   LayoutDashboard,
   BookPlus,
@@ -21,12 +15,10 @@ import { useAuthStore } from "../../store/useAuthStore";
 // ======================================================================
 const Sidebar = () => {
   const { updateRole } = useAuthStore();
-  const navigate = useNavigate();
 
   const handleUpdateRole = () => {
     const role = "student";
     updateRole(role);
-    navigate("/student/dashboard");
   };
 
   // Common Tailwind classes for the navigation links

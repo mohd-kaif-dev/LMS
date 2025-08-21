@@ -1,3 +1,4 @@
+import { Heart } from "lucide-react";
 import { FaCheckCircle, FaRegStar } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
@@ -37,6 +38,14 @@ const CourseCard = ({ course }) => {
         <h3 className="text-md font-semibold px-2 mb-2">{course.title}</h3>
       </div>
 
+      {/* Call To Action */}
+      <div className="flex items-center justify-between px-2 mt-4">
+        <p className="text-lg font-semibold">${course.price}</p>
+        <button className="p-2 rounded-full bg-gray-200 text-gray-600 hover:bg-gray-300 transition-colors">
+          <Heart size={20} />
+        </button>
+      </div>
+
       {/* Statistics */}
       <div className="flex items-center text-sm justify-between px-2">
         <p className="text-sm text-gray-900 mb-2">
@@ -50,6 +59,12 @@ const CourseCard = ({ course }) => {
           />
           <span>{course.rating || "4.5"}</span>
         </div>
+      </div>
+
+      <div className="mt-2 flex items-center">
+        <button className="w-full mx-24 px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition-colors">
+          Enroll
+        </button>
       </div>
     </div>
   );

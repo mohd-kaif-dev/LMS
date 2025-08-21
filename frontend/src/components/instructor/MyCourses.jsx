@@ -6,9 +6,9 @@ import {
   BookMarked,
 } from "lucide-react";
 
-import CourseCard from "../user/CourseCard";
 import useCourseStore from "../../store/useCourseStore";
 import { useEffect } from "react";
+import CourseCard from "./CourseCard";
 // ======================================================================
 // StatCard Component - For displaying key metrics
 // ======================================================================
@@ -30,17 +30,18 @@ const StatCard = ({ icon, title, value, color }) => {
 // MyCourses Component - The main component for displaying courses
 // ======================================================================
 const MyCourses = () => {
-  const { courses, fetchCourses } = useCourseStore();
+  const { courses, fetchInstructorsCourses } = useCourseStore();
 
   const publishedCourses = courses.filter(
-    (course) => course.status === "Published"
+    (course) => course.status === "published"
   );
-  const draftCourses = courses.filter((course) => course.status === "Draft");
+  const draftCourses = courses.filter((course) => course.status === "draft");
 
   useEffect(() => {
-    fetchCourses({ category: "" });
-  });
+    fetchInstructorsCourses();
+  }, [fetchInstructorsCourses]);
 
+  console.log("Courses", courses);
   return (
     <div className="bg-gray-900 min-h-screen text-white font-sans antialiased p-8">
       <div className="container mx-auto">
@@ -82,7 +83,7 @@ const MyCourses = () => {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {publishedCourses.map((course) => (
-              <CourseCard key={course.id} course={course} />
+              <CourseCard key={course._id} course={course} />
             ))}
           </div>
         </div>

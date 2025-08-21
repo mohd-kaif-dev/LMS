@@ -15,11 +15,11 @@ const InstructorLayout = () => {
     }
   }, [authUser, navigate]);
 
-  // useEffect(() => {
-  //   if (authUser.role !== "instructor") {
-  //     navigate("/student/dashboard");
-  //   }
-  // });
+  useEffect(() => {
+    if (authUser.role !== "instructor") {
+      navigate("/student/dashboard");
+    }
+  });
 
   return (
     <div className="montserrat-regular w-full flex ">

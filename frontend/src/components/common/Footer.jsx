@@ -1,225 +1,117 @@
+import React from "react";
 import {
-  FaFacebook,
-  FaInstagram,
-  FaLinkedin,
-  FaYoutube,
-  FaPinterest,
-  FaTwitter,
-} from "react-icons/fa";
+  Facebook,
+  Twitter,
+  Instagram,
+  Linkedin,
+  Youtube,
+  ArrowRight,
+} from "lucide-react";
 
+// ======================================================================
+// Enhanced Footer Component
+// ======================================================================
 const Footer = () => {
+  const socialLinks = [
+    { icon: <Facebook size={20} />, href: "#", label: "Facebook" },
+    { icon: <Twitter size={20} />, href: "#", label: "Twitter" },
+    { icon: <Instagram size={20} />, href: "#", label: "Instagram" },
+    { icon: <Linkedin size={20} />, href: "#", label: "LinkedIn" },
+    { icon: <Youtube size={20} />, href: "#", label: "YouTube" },
+  ];
+
+  const footerLinks = [
+    {
+      title: "Company",
+      links: ["About Us", "Careers", "Press", "Blog"],
+    },
+    {
+      title: "Platform",
+      links: [
+        "Browse Courses",
+        "Become an Instructor",
+        "Affiliate Program",
+        "Partnerships",
+      ],
+    },
+    {
+      title: "Support",
+      links: [
+        "Contact Us",
+        "Help Center",
+        "Privacy Policy",
+        "Terms of Service",
+      ],
+    },
+  ];
+
   return (
-    <footer className="bg-gray-900 text-gray-300 py-10 mt-8">
-      <div className="container mx-auto px-4">
-        {/* Top Section: Links */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-8 border-b border-gray-700 pb-8">
-          {/* Company */}
-          <div>
-            <h3 className="text-white font-bold text-lg mb-4">Company</h3>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <a
-                  href="#"
-                  className="hover:text-white transition-colors duration-200"
-                >
-                  About
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="hover:text-white transition-colors duration-200"
-                >
-                  Careers
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="hover:text-white transition-colors duration-200"
-                >
-                  Press
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="hover:text-white transition-colors duration-200"
-                >
-                  Blog
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          {/* Work With Us */}
-          <div>
-            <h3 className="text-white font-bold text-lg mb-4">Work With Us</h3>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <a
-                  href="#"
-                  className="hover:text-white transition-colors duration-200"
-                >
-                  Affiliate Program
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="hover:text-white transition-colors duration-200"
-                >
-                  Partnerships
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          {/* Teach with us */}
-          <div>
-            <h3 className="text-white font-bold text-lg mb-4">Teach with us</h3>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <a
-                  href="#"
-                  className="hover:text-white transition-colors duration-200"
-                >
-                  Become a Teacher
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="hover:text-white transition-colors duration-200"
-                >
-                  Teacher Help Center
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="hover:text-white transition-colors duration-200"
-                >
-                  Teacher Rules & Requirements
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          {/* Shop */}
-          <div>
-            <h3 className="text-white font-bold text-lg mb-4">Shop</h3>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <a
-                  href="#"
-                  className="hover:text-white transition-colors duration-200"
-                >
-                  Gift Memberships
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="hover:text-white transition-colors duration-200"
-                >
-                  Digital Products
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="hover:text-white transition-colors duration-200"
-                >
-                  1-on-1 Sessions
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="hover:text-white transition-colors duration-200"
-                >
-                  Live Sessions
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          {/* Mobile */}
-          <div>
-            <h3 className="text-white font-bold text-lg mb-4">Mobile</h3>
-            <div className="space-y-4">
-              <a href="#" className="block">
-                <img
-                  src="https://placehold.co/150x50/000000/ffffff?text=App+Store"
-                  alt="Download on the App Store"
-                  className="rounded-lg"
+    <footer className="bg-slate-900/80 backdrop-blur-lg text-slate-300 border-t border-slate-700/50">
+      <div className="container mx-auto px-6 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+          {/* Brand & Newsletter */}
+          <div className="lg:col-span-1 space-y-4">
+            <h2 className="text-2xl font-bold text-white">LearnSphere</h2>
+            <p className="text-sm text-slate-400">
+              Empowering minds through accessible, engaging, and high-quality
+              online education.
+            </p>
+            <div>
+              <h3 className="font-semibold text-white mb-2">Stay Updated</h3>
+              <form className="flex">
+                <input
+                  type="email"
+                  placeholder="Enter your email"
+                  className="w-full bg-slate-800/70 border border-slate-700 rounded-l-md px-3 py-2 text-sm placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
-              </a>
-              <a href="#" className="block">
-                <img
-                  src="https://placehold.co/150x50/000000/ffffff?text=Google+Play"
-                  alt="Get it on Google Play"
-                  className="rounded-lg"
-                />
-              </a>
+                <button
+                  type="submit"
+                  className="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-r-md transition-colors"
+                  aria-label="Subscribe to newsletter"
+                >
+                  <ArrowRight size={20} />
+                </button>
+              </form>
             </div>
           </div>
+
+          {/* Footer Links */}
+          {footerLinks.map((section) => (
+            <div key={section.title}>
+              <h3 className="font-semibold text-white mb-4">{section.title}</h3>
+              <ul className="space-y-2">
+                {section.links.map((link) => (
+                  <li key={link}>
+                    <a
+                      href="#"
+                      className="text-sm text-slate-400 hover:text-white hover:underline transition-colors"
+                    >
+                      {link}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
 
-        {/* Bottom Section: Socials, Copyright, and Language */}
-        <div className="flex flex-col md:flex-row items-center justify-between pt-8 space-y-4 md:space-y-0">
-          <div className="flex items-center space-x-4 text-sm">
-            <span>&copy; LearnSphere, Inc. 2025</span>
-            <a href="#" className="hover:text-white">
-              Help
-            </a>
-            <a href="#" className="hover:text-white">
-              Privacy
-            </a>
-            <a href="#" className="hover:text-white">
-              Terms
-            </a>
-            <a href="#" className="hover:text-white">
-              Your Privacy Choices
-            </a>
-            <span className="hidden md:block">&#x2022;</span>
-            <a href="#" className="hover:text-white">
-              Notice to CA Residents
-            </a>
-          </div>
-
-          <div className="flex items-center space-x-4">
-            {/* Social Icons */}
-            <div className="flex space-x-3">
-              <a href="#" aria-label="Instagram" className="hover:text-white">
-                <FaInstagram size={20} />
+        {/* Bottom Bar */}
+        <div className="mt-12 pt-8 border-t border-slate-700/50 flex flex-col sm:flex-row justify-between items-center">
+          <p className="text-sm text-slate-500 mb-4 sm:mb-0">
+            &copy; {new Date().getFullYear()} LearnSphere, Inc. All Rights
+            Reserved.
+          </p>
+          <div className="flex space-x-4">
+            {socialLinks.map((social) => (
+              <a
+                key={social.label}
+                href={social.href}
+                aria-label={social.label}
+                className="text-slate-500 hover:text-white transition-transform hover:scale-110"
+              >
+                {social.icon}
               </a>
-              <a href="#" aria-label="LinkedIn" className="hover:text-white">
-                <FaLinkedin size={20} />
-              </a>
-              <a href="#" aria-label="Pinterest" className="hover:text-white">
-                <FaPinterest size={20} />
-              </a>
-              <a href="#" aria-label="Twitter" className="hover:text-white">
-                <FaTwitter size={20} />
-              </a>
-              <a href="#" aria-label="Facebook" className="hover:text-white">
-                <FaFacebook size={20} />
-              </a>
-              <a href="#" aria-label="YouTube" className="hover:text-white">
-                <FaYoutube size={20} />
-              </a>
-            </div>
-
-            {/* Language Dropdown (static for now) */}
-            <div className="relative">
-              <select className="bg-gray-800 border border-gray-700 text-gray-300 text-sm rounded-lg py-2 px-3 focus:ring-blue-500 focus:border-blue-500">
-                <option>English</option>
-                <option>Spanish</option>
-                <option>French</option>
-              </select>
-            </div>
+            ))}
           </div>
         </div>
       </div>

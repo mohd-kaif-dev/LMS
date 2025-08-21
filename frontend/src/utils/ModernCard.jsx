@@ -4,7 +4,7 @@ const ModernCard = ({ title, description, buttonText, path }) => {
   const navigate = useNavigate();
   return (
     <div className="flex items-center justify-center p-4">
-      <div className="flex flex-col items-center p-8 rounded-3xl shadow-2xl bg-gradient-to-br from-blue-100/90 to-blue-500 max-w-md w-full text-center transform hover:scale-105 transition-transform duration-300 ease-in-out">
+      <div className="flex flex-col items-center p-8 rounded-3xl bg-gradient-to-br from-blue-100/90 to-blue-500 max-w-md w-full text-center transform hover:scale-105 transition-transform duration-300 ease-in-out">
         <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4 leading-tight">
           {title}
         </h2>

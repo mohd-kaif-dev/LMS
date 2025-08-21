@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { User } from '../models/user.model.js';
+import User from '../models/user.model.js';
 
 export const protect = async (req, res, next) => {
     let token;
@@ -9,6 +9,7 @@ export const protect = async (req, res, next) => {
         } else if (req.headers.authorization?.startsWith("Bearer")) {
             token = req.headers.authorization.split(" ")[1];
         }
+
 
         if (!token) return res.status(401).json({ message: 'Unauthorized - No Token Provided' });
 
@@ -21,6 +22,7 @@ export const protect = async (req, res, next) => {
 
         if (!user) return res.status(401).json({ message: 'Unauthorized - User Not Found' });
         req.user = user;
+
         next();
     } catch (error) {
         console.log("Error in protect middleware:", error.message);

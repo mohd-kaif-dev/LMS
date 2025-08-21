@@ -68,6 +68,11 @@ const courseSchema = new mongoose.Schema(
             type: String,
             trim: true,
         },
+        dificulty: {
+            type: String,
+            enum: ["beginner", "intermediate", "advanced"],
+            default: "beginner",
+        },
         thumbnailUrl: {
             type: String,
             validate: {
@@ -91,6 +96,17 @@ const courseSchema = new mongoose.Schema(
             type: Number,
             default: 0,
             min: [0, "Price must be at least 0"],
+        },
+        originalPrice: {
+            type: Number,
+            default: 999,
+            min: [0, "Original price must be at least 0"],
+        },
+        progress: {
+            type: Number,
+            default: 10,
+            min: [0, "Progress must be at least 0"],
+            max: [100, "Progress must be at most 100"],
         },
         status: {
             type: String,
@@ -117,6 +133,11 @@ const courseSchema = new mongoose.Schema(
             min: [0, "Rating must be at least 0"],
             max: [5, "Rating must be at most 5"],
         },
+        numReviews: {
+            type: Number,
+            default: 0,
+        },
+
         detailedDescription: {
             type: String,
             trim: true,
@@ -125,5 +146,9 @@ const courseSchema = new mongoose.Schema(
     { timestamps: true }
 );
 
-export const Course = mongoose.model("Course", courseSchema);
+courseSchema.index({ title: "text", description: "text" });
+
+const Course = mongoose.model("Course", courseSchema);
+
+export default Course;
 

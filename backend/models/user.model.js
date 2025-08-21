@@ -13,6 +13,13 @@ const userSchema = new mongoose.Schema({
         default: 'student'
     },
     enrolledCourses: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Course' }],
+    bio: { type: String },
+    totalCourses: { type: Number, default: 0 },
+    totalStudents: { type: Number, default: 0 },
+    totalRevenue: { type: Number, default: 0 },
+    rating: { type: Number, default: 0 },
+    numRatings: { type: Number, default: 0 },
+
     isVerified: { type: Boolean, default: false },
 }, { timestamps: true });
 
@@ -35,4 +42,6 @@ userSchema.methods.comparePassword = async function (enteredPassword) {
     return bcrypt.compare(enteredPassword, this.password);
 };
 
-export const User = mongoose.model('User', userSchema);
+const User = mongoose.model('User', userSchema);
+
+export default User;

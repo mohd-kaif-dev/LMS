@@ -55,7 +55,7 @@ const SignIn = () => {
             Welcome Back
           </h1>
           <p className="text-gray-600 text-center mb-8 text-lg font-semibold">
-            Log in to <span className="text-green-500">Learn</span>Sphere
+            Log in to <span className="text-orange-500">Learn</span>Sphere
           </p>
 
           <form onSubmit={handleLogin} className="space-y-6">
@@ -75,7 +75,7 @@ const SignIn = () => {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                 required
               />
             </div>
@@ -96,7 +96,7 @@ const SignIn = () => {
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 pr-12"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 pr-12"
                 required
               />
               <button
@@ -111,7 +111,7 @@ const SignIn = () => {
             {/* Continue Button */}
             <button
               type="submit"
-              className="w-full flex items-center justify-center bg-green-500 text-white font-semibold py-3 px-6 rounded-lg hover:bg-green-600 transition-colors duration-200 shadow-md"
+              className="w-full flex items-center justify-center bg-orange-500 text-white font-semibold py-3 px-6 rounded-lg hover:bg-orange-600 transition-colors duration-200 shadow-md"
             >
               {isSigningIn ? (
                 <FaSpinner size={20} className="animate-spin" />
@@ -123,7 +123,7 @@ const SignIn = () => {
 
           <p className="text-center text-gray-600 mt-6">
             Don't have an account?{" "}
-            <a href="#" className="text-blue-500 hover:underline font-medium">
+            <a href="#" className="text-orange-500 hover:underline font-medium">
               Sign up
             </a>
           </p>
