@@ -13,8 +13,8 @@ import {
 
 import { toast } from "sonner";
 
-import useCourseStore from "../../store/useCourseStore";
-import { StepFour, StepOne, StepThree, StepTwo } from "./CourseCreation/Steps";
+import useCourseStore from "../../../store/useCourseStore";
+import { StepFour, StepOne, StepThree, StepTwo } from "./Steps";
 import { useNavigate } from "react-router-dom";
 
 const GlassCard = ({ children, className = "" }) => (

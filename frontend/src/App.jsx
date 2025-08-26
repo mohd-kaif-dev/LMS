@@ -1,58 +1,44 @@
 import { Routes, Route } from "react-router-dom";
+import { Toaster } from "sonner";
+
+// pages
 import Home from "./pages/Home";
-
 import SuccessLogin from "./pages/SuccessLogin";
-
-import CourseCreation from "./components/instructor/CourseCreation3";
-
-import UserLayout from "./layout/userLayout";
 import SignUp from "./pages/SignUp";
 import SignIn from "./pages/SignIn";
-// import { useAuthStore } from "./store/useAuthStore";
-// import { useEffect } from "react";
-// import { FaSpinner } from "react-icons/fa";
-import { Toaster } from "sonner";
-import Dashboard from "./components/students/Dashboard";
-import InstructorLayout from "./layout/instructorLayout";
-import InstructorDashboard from "./components/instructor/Dashboard";
-
-import MyCourses from "./components/instructor/MyCourses";
-import MyEnrollement from "./components/students/MyEnrollment";
-
-import CourseDetails from "./components/user/CourseDetails";
-
-import AdminLayout from "./layout/adminLayout";
-import AdminDashboard from "./components/admin/AdminDashboard";
-import UserManagement from "./components/admin/UserManagement";
-import CourseManagement from "./components/admin/CourseManagement";
-import Settings from "./components/admin/Settings";
-import AdminAnalytics from "./components/admin/AdminAnalytics";
-import InstructorAnalytics from "./components/instructor/Analytics";
-import InstructorProfile from "./components/instructor/Profile";
-import StudentProfile from "./components/students/Profile";
 import CartPage from "./pages/CartPage";
 import OrderConfirmation from "./pages/OrderConfirmation";
 import PurchaseFailure from "./pages/PurchaseFailure";
 import CategoryDisplay from "./pages/Category";
 import VideoPlayerPage from "./pages/VideoPlayer";
 
+// layout
+import AdminLayout from "./layout/adminLayout";
+import InstructorLayout from "./layout/instructorLayout";
+import UserLayout from "./layout/userLayout";
+
+// student
+import Dashboard from "./components/students/Dashboard";
+import MyEnrollement from "./components/students/MyEnrollment";
+import StudentProfile from "./components/students/Profile";
+
+// instructor
+import InstructorDashboard from "./components/instructor/Dashboard";
+import CourseCreation from "./components/instructor/CourseCreation3";
+import MyCourses from "./components/instructor/MyCourses";
+import InstructorAnalytics from "./components/instructor/Analytics";
+import InstructorProfile from "./components/instructor/Profile";
+
+import CourseDetails from "./components/user/CourseDetails";
+
+// admin
+import AdminDashboard from "./components/admin/AdminDashboard";
+import UserManagement from "./components/admin/UserManagement";
+import CourseManagement from "./components/admin/CourseManagement";
+import Settings from "./components/admin/Settings";
+import AdminAnalytics from "./components/admin/AdminAnalytics";
+
 const App = () => {
-  // const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
-
-  // useEffect(() => {
-  //   checkAuth();
-  // }, [checkAuth]);
-
-  // if (isCheckingAuth) {
-  //   return (
-  //     <div className="min-h-screen flex items-center justify-center">
-  //       <FaSpinner size={32} className="animate-spin" />;
-  //     </div>
-  //   );
-  // }
-
-  // console.log("authUser", authUser);
-
   return (
     <div className="montserrat-regular">
       <Toaster position="top-right" />
