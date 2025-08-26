@@ -41,6 +41,10 @@ const SignIn = () => {
     }
   });
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
     <div className="w-full flex">
       <div className="hidden md:block md:w-1/2">
@@ -138,7 +142,7 @@ const SignIn = () => {
           <div className="space-y-4">
             <button
               onClick={handleGoogleSignIn}
-              className="w-full flex items-center justify-center space-x-2 bg-white text-gray-800 py-3 px-6 rounded-lg border border-gray-300 shadow-sm hover:bg-gray-50 transition-colors duration-200"
+              className="w-full flex items-center justify-center space-x-2 bg-white text-gray-800 py-3 px-6 rounded-lg border border-gray-300 shadow-sm hover:bg-gray-50 transition-colors duration-200 cursor-pointer"
             >
               {/* Inline SVG for Google icon */}
               <svg

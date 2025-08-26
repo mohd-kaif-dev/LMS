@@ -8,7 +8,7 @@ import useCourseStore from "../../store/useCourseStore";
 // EnrolledCourseCard.jsx
 
 import { Clock, Layers, BarChart3, PlayCircle } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 // Helper component for the circular progress bar
 const CircularProgress = ({ progress, size = 60, strokeWidth = 5 }) => {
@@ -80,7 +80,12 @@ const EnrolledCourseCard = ({ course }) => {
         navigate(
           `/courses/${course.title.replace(/\s+/g, "-").toLowerCase()}/learn/${
             course.sections[0].lessons[0]._id
-          }`
+          }`,
+          {
+            state: {
+              id: course._id,
+            },
+          }
         )
       }
       className="group bg-slate-800/50 border border-slate-700 rounded-2xl overflow-hidden shadow-lg 
@@ -111,7 +116,7 @@ const EnrolledCourseCard = ({ course }) => {
           {course.title}
         </h3>
         <p className="text-sm text-slate-400 mb-4">
-          by {course.instructor.name}
+          by {course?.instructor?.name}
         </p>
 
         {/* --- Informative Badges --- */}
@@ -167,9 +172,31 @@ const MyEnrollement = () => {
         {/* Enrolled Courses Grid */}
         {!isFetching ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {courses.map((course) => (
-              <EnrolledCourseCard key={course.id} course={course} />
-            ))}
+            {courses.length > 0 ? (
+              courses.map((course) => (
+                <EnrolledCourseCard key={course?._id} course={course} />
+              ))
+            ) : (
+              <div
+                className="bg-slate-800/50 border border-slate-700 rounded-2xl overflow-hidden shadow-lg 
+                   transition-all duration-300 hover:shadow-cyan-500/20 p-6 text-center col-span-3"
+              >
+                <BookOpen size={64} className="text-cyan-500 mx-auto" />
+                <h3 className="mt-2 text-lg font-semibold">
+                  Your courses, made with love.
+                </h3>
+                <p className="mt-2 text-gray-400">
+                  You don't have any enrolled courses yet. Enroll into a course
+                  today and start learning something new.
+                </p>
+                <Link
+                  to="/student/dashboard"
+                  className="mt-6 inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-gradient-to-br from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500"
+                >
+                  Explore Courses
+                </Link>
+              </div>
+            )}
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

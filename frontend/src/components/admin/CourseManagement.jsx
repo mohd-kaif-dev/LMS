@@ -1,23 +1,21 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Search,
   BookOpen,
-  CheckCircle,
-  XCircle,
   Trash2,
   MoreVertical,
-  Edit,
-  User,
-  Plus,
-  Rocket,
-  Clock,
   ExternalLink,
+  Loader2,
 } from "lucide-react";
+
+import { useNavigate } from "react-router-dom";
+import { useAdminStore } from "../../store/useAdminStore";
+import { dateFormat } from "../../utils/constant";
 
 // ======================================================================
 // CourseActionsDropdown Component - Reusable component for course actions
 // ======================================================================
-const CourseActionsDropdown = ({ onApprove, onReject, onDelete, onView }) => {
+const CourseActionsDropdown = ({ onDelete, onView, isDeleting }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -40,26 +38,7 @@ const CourseActionsDropdown = ({ onApprove, onReject, onDelete, onView }) => {
             <ExternalLink size={16} />
             <span>View Details</span>
           </button>
-          <button
-            onClick={() => {
-              onApprove();
-              setIsOpen(false);
-            }}
-            className="flex items-center space-x-2 px-4 py-2 text-sm text-green-400 hover:bg-gray-600 w-full text-left"
-          >
-            <CheckCircle size={16} />
-            <span>Approve Course</span>
-          </button>
-          <button
-            onClick={() => {
-              onReject();
-              setIsOpen(false);
-            }}
-            className="flex items-center space-x-2 px-4 py-2 text-sm text-yellow-400 hover:bg-gray-600 w-full text-left"
-          >
-            <XCircle size={16} />
-            <span>Reject Course</span>
-          </button>
+
           <button
             onClick={() => {
               onDelete();
@@ -68,7 +47,13 @@ const CourseActionsDropdown = ({ onApprove, onReject, onDelete, onView }) => {
             className="flex items-center space-x-2 px-4 py-2 text-sm text-red-400 hover:bg-gray-600 w-full text-left"
           >
             <Trash2 size={16} />
-            <span>Delete Course</span>
+            <span>
+              {isDeleting ? (
+                <Loader2 size={16} className="animate-spin" />
+              ) : (
+                "Delete Course"
+              )}
+            </span>
           </button>
         </div>
       )}
@@ -80,81 +65,50 @@ const CourseActionsDropdown = ({ onApprove, onReject, onDelete, onView }) => {
 // ManageCourses Component - The main component for managing courses
 // ======================================================================
 const CourseManagement = () => {
-  const [courses, setCourses] = useState([
-    {
-      id: 1,
-      title: "Introduction to Web Design",
-      author: "Jane Doe",
-      status: "Published",
-      createdDate: "2023-01-15",
-    },
-    {
-      id: 2,
-      title: "Advanced JavaScript Concepts",
-      author: "John Smith",
-      status: "Pending",
-      createdDate: "2023-03-22",
-    },
-    {
-      id: 3,
-      title: "Creative Photography Basics",
-      author: "Emily White",
-      status: "Draft",
-      createdDate: "2023-05-10",
-    },
-    {
-      id: 4,
-      title: "Digital Marketing 101",
-      author: "Michael Brown",
-      status: "Published",
-      createdDate: "2023-02-28",
-    },
-    {
-      id: 5,
-      title: "Figma UI/UX Design",
-      author: "Sarah Lee",
-      status: "Pending",
-      createdDate: "2023-06-18",
-    },
-    {
-      id: 6,
-      title: "Motion Graphics with AE",
-      author: "Mark Johnson",
-      status: "Draft",
-      createdDate: "2023-07-01",
-    },
-  ]);
+  const navigate = useNavigate();
 
-  const handleApprove = (id) => {
-    console.log(`Approving course with ID: ${id}`);
-    setCourses(
-      courses.map((course) =>
-        course.id === id ? { ...course, status: "Published" } : course
-      )
-    );
-    // Implement API call to approve the course
-  };
+  const {
+    adminCourses: courses,
+    isFetching,
+    isDeleting,
+    deleteCourse,
+    getAllCourses,
+    pagination: { page, limit, setPage, setLimit, total },
+  } = useAdminStore();
 
-  const handleReject = (id) => {
-    console.log(`Rejecting course with ID: ${id}`);
-    setCourses(
-      courses.map((course) =>
-        course.id === id ? { ...course, status: "Rejected" } : course
-      )
-    );
-    // Implement API call to reject the course
-  };
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
 
   const handleDelete = (id) => {
-    console.log(`Deleting course with ID: ${id}`);
-    setCourses(courses.filter((course) => course.id !== id));
-    // Implement API call to delete the course
+    deleteCourse(id);
   };
 
-  const handleView = (id) => {
+  const handleView = (id, title) => {
     console.log(`Viewing details for course with ID: ${id}`);
     // Navigate to a course detail page
+    navigate(
+      `/admin/courses/${title.replace(/\s+/g, "-").toLowerCase()}/view`,
+      {
+        state: {
+          id: id,
+        },
+      }
+    );
   };
+
+  useEffect(() => {
+    getAllCourses(page, limit, debouncedSearch);
+  }, [getAllCourses, page, limit, debouncedSearch]);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+    }, 500);
+
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
+
+  console.log("Page React: ", page);
 
   return (
     <div className="bg-gray-900 min-h-screen text-white font-sans antialiased p-8">
@@ -162,13 +116,9 @@ const CourseManagement = () => {
         {/* Header and Controls */}
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-4xl md:text-5xl font-bold">Manage Courses</h1>
-          <button className="flex items-center space-x-2 px-4 py-2 rounded-full bg-green-500 text-black font-semibold hover:bg-green-600 transition-colors duration-200">
-            <Plus size={20} />
-            <span>Add New Course</span>
-          </button>
         </div>
         <p className="text-lg text-gray-400 mb-12">
-          View, approve, and manage all courses on the platform.
+          View and manage all courses on the platform.
         </p>
 
         {/* Search and Filters */}
@@ -180,6 +130,8 @@ const CourseManagement = () => {
             />
             <input
               type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search courses by title or author..."
               className="w-full pl-12 pr-4 py-3 rounded-xl bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500"
             />
@@ -188,65 +140,115 @@ const CourseManagement = () => {
 
         {/* Course Table */}
         <div className="bg-gray-800 rounded-2xl shadow-lg p-8">
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-left text-gray-300">
-              <thead>
-                <tr className="border-b border-gray-700 text-sm font-semibold text-gray-400">
-                  <th scope="col" className="py-3 px-4">
-                    Title
-                  </th>
-                  <th scope="col" className="py-3 px-4">
-                    Author
-                  </th>
-                  <th scope="col" className="py-3 px-4">
-                    Status
-                  </th>
-                  <th scope="col" className="py-3 px-4">
-                    Created Date
-                  </th>
-                  <th scope="col" className="py-3 px-4 text-right">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {courses.map((course) => (
-                  <tr
-                    key={course.id}
-                    className="border-b border-gray-700 last:border-b-0 hover:bg-gray-700 transition-colors duration-200"
-                  >
-                    <td className="py-4 px-4 flex items-center space-x-2">
-                      <BookOpen size={20} />
-                      <span>{course.title}</span>
-                    </td>
-                    <td className="py-4 px-4">{course.author}</td>
-                    <td className="py-4 px-4">
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                          course.status === "Published"
-                            ? "bg-green-500 text-black"
-                            : course.status === "Pending"
-                            ? "bg-yellow-500 text-black"
-                            : "bg-gray-500 text-white"
-                        }`}
-                      >
-                        {course.status}
-                      </span>
-                    </td>
-                    <td className="py-4 px-4">{course.createdDate}</td>
-                    <td className="py-4 px-4 text-right">
-                      <CourseActionsDropdown
-                        onApprove={() => handleApprove(course.id)}
-                        onReject={() => handleReject(course.id)}
-                        onDelete={() => handleDelete(course.id)}
-                        onView={() => handleView(course.id)}
-                      />
-                    </td>
+          {isFetching ? (
+            <div className="flex items-center justify-center h-full">
+              <Loader2 size={24} className="animate-spin" />
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="min-w-full text-left text-gray-300">
+                <thead>
+                  <tr className="border-b border-gray-700 text-sm font-semibold text-gray-400">
+                    <th scope="col" className="py-3 px-4">
+                      Title
+                    </th>
+                    <th scope="col" className="py-3 px-4">
+                      Author
+                    </th>
+                    <th scope="col" className="py-3 px-4">
+                      Status
+                    </th>
+                    <th scope="col" className="py-3 px-4">
+                      Created Date
+                    </th>
+                    <th scope="col" className="py-3 px-4 text-right">
+                      Actions
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {courses.map((course) => (
+                    <tr
+                      key={course._id}
+                      className="border-b border-gray-700 last:border-b-0 hover:bg-gray-700 transition-colors duration-200"
+                    >
+                      <td className="py-4 px-4 flex items-center space-x-2">
+                        <BookOpen size={20} />
+                        <span>{course.title}</span>
+                      </td>
+                      <td className="py-4 px-4">{course?.instructor?.name}</td>
+                      <td className="py-4 px-4">
+                        <span
+                          className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                            course.status === "Published"
+                              ? "bg-green-500 text-black"
+                              : course.status === "Pending"
+                              ? "bg-yellow-500 text-black"
+                              : "bg-gray-500 text-white"
+                          }`}
+                        >
+                          {course.status}
+                        </span>
+                      </td>
+                      <td className="py-4 px-4">
+                        {dateFormat(course.createdAt)}
+                      </td>
+                      <td className="py-4 px-4 text-right">
+                        <CourseActionsDropdown
+                          onDelete={() => handleDelete(course._id)}
+                          onView={() => handleView(course._id, course.title)}
+                          isDeleting={isDeleting}
+                        />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              {/* Pagination */}
+              <div className="flex items-center justify-between mt-4">
+                <div className="flex space-x-2">
+                  <select
+                    value={limit}
+                    onChange={(e) => {
+                      setLimit(Number(e.target.value));
+                      setPage(1); // reset page when limit changes
+                    }}
+                    className="px-4 py-2 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-green-500"
+                  >
+                    <option value={5}>5</option>
+                    <option value={10}>10</option>
+                    <option value={50}>50</option>
+                  </select>
+                  <p className="text-sm font-semibold text-gray-400">
+                    Showing {limit} courses per page
+                  </p>
+                </div>
+
+                <div className="flex space-x-3 items-center">
+                  <button
+                    onClick={() => setPage(page - 1)}
+                    className="px-4 py-2 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-green-500"
+                    disabled={page === 1}
+                  >
+                    Prev
+                  </button>
+
+                  <span className="text-sm font-semibold text-gray-300">
+                    Page {page} of {Math.ceil(total / limit)}
+                  </span>
+
+                  <button
+                    onClick={() => setPage(page + 1)}
+                    className="px-4 py-2 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-green-500 cursor-pointer"
+                    disabled={page === Math.ceil(total / limit)}
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

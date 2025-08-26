@@ -18,7 +18,13 @@ const CourseCard = ({ course }) => {
   const navigate = useNavigate();
   return (
     <div
-      onClick={() => navigate(`/courses/${course._id}`)}
+      onClick={() =>
+        navigate(`/courses/${course.title.replace(/\s+/g, "-")}`, {
+          state: {
+            id: course._id,
+          },
+        })
+      }
       className="group bg-slate-800/50 rounded-2xl overflow-hidden border border-slate-700/50 transition-all duration-300 hover:border-blue-500/50 hover:-translate-y-1 hover:shadow-2xl hover:shadow-blue-900/30 cursor-pointer"
     >
       <img
@@ -29,7 +35,7 @@ const CourseCard = ({ course }) => {
       <div className="p-4">
         <h3 className="font-bold text-slate-100 truncate">{course.title}</h3>
         <p className="text-sm text-slate-400 mb-3">
-          by {course.instructor.name}
+          by {course?.instructor?.name}
         </p>
         <div className="flex items-center justify-between">
           <p className="text-lg font-semibold text-blue-400">

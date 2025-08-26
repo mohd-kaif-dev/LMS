@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Users,
   BookOpen,
@@ -12,6 +12,8 @@ import {
   XCircle,
 } from "lucide-react";
 
+import { useAdminStore } from "../../store/useAdminStore";
+
 // ======================================================================
 // StatCard Component - A reusable card for displaying a single metric
 // ======================================================================
@@ -21,7 +23,7 @@ const StatCard = ({ icon, title, value, description, color }) => {
       className={`flex flex-col p-6 rounded-2xl shadow-lg transition-transform duration-200 hover:scale-105 ${color} text-white`}
     >
       <div className="flex items-center justify-between mb-4">
-        <span className="p-3 rounded-full bg-white bg-opacity-20">{icon}</span>
+        <span className="p-3 rounded-full bg-white/20">{icon}</span>
         <span className="text-3xl font-bold">{value}</span>
       </div>
       <h3 className="text-xl font-semibold mb-1">{title}</h3>
@@ -46,19 +48,21 @@ const DashboardSection = ({ title, children }) => (
 // AdminDashboard Component - The main dashboard container
 // ======================================================================
 const AdminDashboard = () => {
-  // Mock Data for the dashboard
+  const { adminUsers, adminCourses, getAllUsers, getAllCourses } =
+    useAdminStore();
+
   const stats = [
     {
       icon: <Users size={24} />,
       title: "Total Users",
-      value: "25,489",
+      value: adminUsers?.length,
       description: "Total registered users on the platform.",
       color: "bg-indigo-600",
     },
     {
       icon: <BookOpen size={24} />,
       title: "Total Courses",
-      value: "1,250",
+      value: adminCourses.length,
       description: "Total published courses.",
       color: "bg-green-600",
     },
@@ -91,6 +95,11 @@ const AdminDashboard = () => {
     { title: "CSS Mastery", status: "Rejected" },
     { title: "Data Science with Python", status: "Pending" },
   ];
+
+  useEffect(() => {
+    getAllUsers();
+    getAllCourses();
+  }, [getAllUsers, getAllCourses]);
 
   return (
     <div className="bg-gray-900 min-h-screen text-white font-sans antialiased p-8">

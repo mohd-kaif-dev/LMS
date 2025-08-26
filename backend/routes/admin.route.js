@@ -7,7 +7,7 @@ import {
     getAllOrders,
     deleteUser,
     deleteCourse,
-    updateCourse,
+
 } from '../controllers/admin.controller.js';
 
 const router = Router();
@@ -43,6 +43,6 @@ router.delete('/courses/:id', deleteCourse);
 // @desc    Update a course
 // @route   PUT /api/admin/courses/:id
 // @access  Admin
-router.put('/courses/:id', updateCourse);
+// router.put('/courses/:id', updateCourse);
 
 export default router;

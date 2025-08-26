@@ -14,6 +14,8 @@ import {
 import { useOrderStore } from "../store/useOrderStore";
 import { useNavigate } from "react-router-dom";
 
+import { dateFormat } from "../utils/constant";
+
 // ======================================================================
 // AnimatedCheck Component - A custom SVG animation for the success icon
 // ======================================================================
@@ -95,12 +97,6 @@ const OrderConfirmation = () => {
     }
   }, [checkoutId, checkoutSuccessAndCreateOrder, order]);
 
-  const dateFormat = (date) => {
-    if (!date) return "N/A";
-    const options = { year: "numeric", month: "long", day: "numeric" };
-    return new Date(date).toLocaleDateString(undefined, options);
-  };
-
   const capitalize = (word) => {
     if (!word) return "";
     return word.charAt(0).toUpperCase() + word.slice(1);
@@ -114,20 +110,10 @@ const OrderConfirmation = () => {
     );
   }
 
+  console.log(order);
+
   return (
     <div className=" text-slate-200 min-h-screen p-4 sm:p-8 animated-gradient">
-      <style>{`
-        @keyframes gradient-animation {
-          0% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
-        }
-        .animated-gradient {
-          background: linear-gradient(-45deg, #0f172a, #1e293b, #334155, #020617);
-          background-size: 400% 400%;
-          animation: gradient-animation 15s ease infinite;
-        }
-      `}</style>
       <div className="container mx-auto max-w-4xl">
         {/* Header Section */}
         <header className="text-center mb-10">
@@ -187,7 +173,15 @@ const OrderConfirmation = () => {
               </h2>
               <div className="flex flex-col sm:flex-row gap-4">
                 <button
-                  onClick={() => navigate(`/course/${order.courses[0]._id}`)}
+                  onClick={() =>
+                    navigate(
+                      `/courses/${order.courses[0].title
+                        .replace(/\s+/g, "-")
+                        .toLowerCase()}/learn/${
+                        order.courses[0].sections[0].lessons[0]._id
+                      }`
+                    )
+                  }
                   className="flex-1 group flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold hover:scale-105 transition-transform duration-300"
                 >
                   <ExternalLink size={20} />

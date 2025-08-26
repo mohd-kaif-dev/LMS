@@ -79,6 +79,11 @@ const CartPage = () => {
     localStorage.setItem("checkoutId", checkout);
   }
 
+  const totalLectures = selectedCourse?.sections?.reduce(
+    (acc, section) => acc + section.lessons.length,
+    0
+  );
+
   // useEffect(() => {
   //   const total = cartItems.reduce((acc, item) => acc + item.price, 0);
   //   setSubtotal(total);
@@ -167,13 +172,13 @@ const CartPage = () => {
                     <span className="font-bold">{selectedCourse.rating}</span>
                     <Star size={16} />
                     <span className="text-gray-400">
-                      ({selectedCourse.reviews} ratings)
+                      ({selectedCourse.numReviews} ratings)
                     </span>
                   </div>
                   <div className="text-gray-400 text-xs flex items-center space-x-2">
-                    <span>{selectedCourse.totalHours} total hours</span>
+                    <span>{selectedCourse.totalDuration / 60} total hours</span>
                     <span>•</span>
-                    <span>{selectedCourse.lectures} lectures</span>
+                    <span>{totalLectures} lectures</span>
                     <span>•</span>
                     <span>{selectedCourse.difficulty}</span>
                   </div>

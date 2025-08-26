@@ -32,7 +32,7 @@ router.get("/:id", getCourseById);
 router.post("/", protect, createCourseDraft);
 
 // Update draft (Step 2+)
-router.patch("/:id", protect, updateCourseDraft);
+router.put("/:id", protect, updateCourseDraft);
 
 router.put("/:id/publish", protect, togglePublishCourse);
 
@@ -45,9 +45,9 @@ router.get("/my/enrollments", protect, getMyEnrolledCourses);
 
 router.put('/:courseId/thumbnail', protect, uploadImage.single('thumbnail'), uploadCourseThumbnail);
 
-router.put('/:courseId/sections/:sectionId/lessons', protect, uploadVideo.single('video'), uploadLessonVideo);
+router.put('/:courseId/sections/:sectionId/lessons/:lessonId/video', protect, uploadVideo.single('video'), uploadLessonVideo);
 
-router.delete('/:courseId/sections/:sectionId/lessons/:lessonId', protect, deleteLessonVideo);
+router.delete('/:courseId/lessons/:lessonId/video', protect, deleteLessonVideo);
 
 
 

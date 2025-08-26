@@ -23,7 +23,7 @@ const categories = [
   { name: "Digital Illustration", slug: "digital-illustration" },
   { name: "Business", slug: "business" },
   { name: "Film & Video", slug: "film-video" },
-  { name: "Web Development", slug: "web-devlopment" },
+  { name: "Web Development", slug: "web-development" },
   { name: "Freelance & Entrepreneurship", slug: "freelance" },
   { name: "Graphic Design", slug: "graphic-design" },
   { name: "Photography", slug: "photography" },

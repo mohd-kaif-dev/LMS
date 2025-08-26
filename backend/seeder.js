@@ -1,8 +1,8 @@
 import connectDB from "./config/connectDB.js"
 import { instructorData } from "./data/userData.js";
 import { courseData } from "./data/CourseData.js";
-import { User } from "./models/user.model.js";
-import { Course } from "./models/course.model.js";
+import User from "./models/user.model.js";
+import Course from "./models/course.model.js";
 
 import dotenv from "dotenv";
 dotenv.config();

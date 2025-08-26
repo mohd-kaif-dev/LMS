@@ -13,7 +13,7 @@ export const generateToken = (userId, res) => {
         secure: process.env.NODE_ENV === 'production' ? true : false, // set secure to true if in production
         sameSite: 'strict', // CSRF attacks (cross-site request forgery)
     });
-    console.log("Cookie stored:", res.cookie?.value)
+
 
     return token;
 };

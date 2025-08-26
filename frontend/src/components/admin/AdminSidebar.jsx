@@ -17,6 +17,7 @@ import {
   User,
   Home,
 } from "lucide-react";
+import { useAuthStore } from "../../store/useAuthStore";
 // Assuming useAuthStore exists for handling authentication and roles
 // import { useAuthStore } from "../../store/useAuthStore";
 
@@ -26,11 +27,13 @@ import {
 const AdminSidebar = () => {
   // const { updateRole } = useAuthStore();
   const navigate = useNavigate();
+  const { logout } = useAuthStore();
 
   // Handle logout functionality
   const handleLogout = () => {
     // Implement your logout logic here
     console.log("Admin logged out");
+    logout();
     navigate("/"); // Navigate to home or login page
   };
 

@@ -7,11 +7,22 @@ import Order from '../models/order.model.js';
 // @access  Admin
 export const getAllUsers = async (req, res) => {
     try {
-        const users = await User.find({}).select('-password');
+        const { page = 1, limit = 10 } = req.query;
+        const users = await User.find({ _id: { $ne: req.user._id } })
+            .select('-password')
+            .skip((page - 1) * limit)
+            .limit(limit);
+        const total = await User.countDocuments({ _id: { $ne: req.user._id } });
         res.status(200).json({
             success: true,
-            data: users,
+            users,
+            pagination: {
+                page,
+                limit,
+                total,
+            },
         });
+
     } catch (error) {
         console.log("Error in getAllUsers: ", error);
         res.status(500).json({ message: 'Server error' });
@@ -23,10 +34,27 @@ export const getAllUsers = async (req, res) => {
 // @access  Admin
 export const getAllCourses = async (req, res) => {
     try {
-        const courses = await Course.find({}).populate('instructor', 'name');
+        const { page = 1, limit = 10, searchQuery = "" } = req.query;
+        const query = searchQuery ? {
+            $or: [
+                { title: { $regex: searchQuery, $options: "i" } },
+                { category: { $regex: searchQuery, $options: "i" } },
+                { description: { $regex: searchQuery, $options: "i" } },
+            ],
+        } : {};
+        const courses = await Course.find(query)
+            .populate('instructor', 'name')
+            .skip((page - 1) * limit)
+            .limit(limit);
+        const total = await Course.countDocuments(query);
         res.status(200).json({
             success: true,
-            data: courses,
+            courses,
+            pagination: {
+                page,
+                limit,
+                total,
+            },
         });
     } catch (error) {
         console.log("Error in getAllCourses: ", error);
@@ -39,10 +67,20 @@ export const getAllCourses = async (req, res) => {
 // @access  Admin
 export const getAllOrders = async (req, res) => {
     try {
-        const orders = await Order.find({}).populate('user', 'name email');
+        const { page = 1, limit = 10 } = req.query;
+        const orders = await Order.find({})
+            .populate('user', 'name email')
+            .skip((page - 1) * limit)
+            .limit(limit);
+        const total = await Order.countDocuments({});
         res.status(200).json({
             success: true,
-            data: orders,
+            orders,
+            pagination: {
+                page,
+                limit,
+                total,
+            },
         });
     } catch (error) {
         console.log("Error in getAllOrders: ", error);
@@ -100,30 +138,31 @@ export const deleteCourse = async (req, res) => {
     }
 };
 
-// @desc    Update a course
-// @route   PUT /api/admin/courses/:id
-// @access  Admin
-export const updateCourse = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const updateData = req.body;
+// // @desc    Update a course
+// // @route   PUT /api/admin/courses/:id
+// // @access  Admin
+// export const updateCourse = async (req, res) => {
+//     try {
+//         const { id } = req.params;
+//         const updateData = req.body;
 
-        const updatedCourse = await Course.findByIdAndUpdate(id, updateData, {
-            new: true,
-            runValidators: true,
-        });
+//         const updatedCourse = await Course.findByIdAndUpdate(id, updateData, {
+//             new: true,
+//             runValidators: true,
+//         });
 
-        if (!updatedCourse) {
-            res.status(404);
-            throw new Error('Course not found');
-        }
+//         if (!updatedCourse) {
+//             res.status(404);
+//             throw new Error('Course not found');
+//         }
 
-        res.status(200).json({
-            success: true,
-            data: updatedCourse,
-        });
-    } catch (error) {
-        console.log("Error in updateCourse: ", error);
-        res.status(500).json({ message: 'Server error' });
-    }
-};
+//         res.status(200).json({
+//             success: true,
+//             data: updatedCourse,
+//         });
+//     } catch (error) {
+//         console.log("Error in updateCourse: ", error);
+//         res.status(500).json({ message: 'Server error' });
+//     }
+// };
+

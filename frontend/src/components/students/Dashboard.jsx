@@ -35,26 +35,27 @@ const StatCard = ({ icon, title, value, color, description }) => {
 // Dashboard Sections
 // ======================================================================
 
-const Stats = () => {
+const Stats = ({ authUser }) => {
+  console.log("User", authUser);
   const studentStats = [
     {
       icon: <BookOpen size={24} />,
       title: "Courses Enrolled",
-      value: "8",
+      value: authUser?.enrolledCourses?.length,
       description: "Keep learning!",
       color: "border-blue-500",
     },
     {
       icon: <Clock size={24} />,
       title: "Hours Learned",
-      value: "125",
+      value: authUser?.totalHoursWatched,
       description: "Time well spent.",
       color: "border-green-500",
     },
     {
       icon: <Trophy size={24} />,
       title: "Courses Completed",
-      value: "3",
+      value: authUser.completedCourses?.length,
       description: "Great achievements!",
       color: "border-yellow-500",
     },
@@ -100,7 +101,7 @@ const Dashboard = () => {
           </p>
         </header>
 
-        <Stats />
+        <Stats authUser={authUser} />
 
         <main className="space-y-12">
           <DashboardCourses title="Featured Courses" slug="featured" />

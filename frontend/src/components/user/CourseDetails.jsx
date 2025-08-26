@@ -2,20 +2,18 @@ import React, { useEffect, useState } from "react";
 import {
   Star,
   PlayCircle,
-  ChevronDown,
   CheckCircle,
   ChevronUp,
   Loader2,
-  Share2,
-  Clock,
   Video,
   FileText,
   Award,
   Smartphone,
-  Infinity,
+  Infinity as InfinityIcon,
 } from "lucide-react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import useCourseStore from "../../store/useCourseStore";
+import { useAuthStore } from "../../store/useAuthStore";
 
 // ======================================================================
 // Helper & UI Components
@@ -80,9 +78,12 @@ const AccordionItem = ({ section, isOpen, onClick }) => (
 // ======================================================================
 const CourseDetails = () => {
   const [openSection, setOpenSection] = useState(0);
-  const { courseId } = useParams();
   const navigate = useNavigate();
   const { selectedCourse, fetchCourseById, isFetching } = useCourseStore();
+
+  const { authUser } = useAuthStore();
+  const location = useLocation();
+  const courseId = location.state?.id;
 
   useEffect(() => {
     fetchCourseById(courseId);
@@ -93,11 +94,36 @@ const CourseDetails = () => {
     setOpenSection(openSection === index ? null : index);
   };
 
+  const handleEnroll = (title, _id, sections) => {
+    if (authUser) {
+      if (!isEnrolled) {
+        navigate(`/cart/${title.replace(/\s+/g, "-")}`, {
+          state: {
+            id: _id,
+          },
+        });
+      } else {
+        navigate(
+          `/courses/${title.replace(/\s+/g, "-").toLowerCase()}/learn/${
+            sections[0].lessons[0]._id
+          }`
+        );
+      }
+    } else {
+      navigate("/sign-in");
+    }
+  };
+
   const formatDuration = (totalSeconds) => {
     const hours = Math.floor(totalSeconds / 3600);
     const minutes = Math.floor((totalSeconds % 3600) / 60);
     return `${hours}h ${minutes}m`;
   };
+
+  const totalLectures = selectedCourse?.sections?.reduce(
+    (acc, section) => acc + section.lessons.length,
+    0
+  );
 
   if (isFetching || !selectedCourse) {
     return (
@@ -120,12 +146,14 @@ const CourseDetails = () => {
     },
     { icon: <FileText size={18} />, text: "Downloadable resources" },
     { icon: <Smartphone size={18} />, text: "Access on mobile and TV" },
-    { icon: <Infinity size={18} />, text: "Full lifetime access" },
+    { icon: <InfinityIcon size={18} />, text: "Full lifetime access" },
     { icon: <Award size={18} />, text: "Certificate of completion" },
   ];
 
+  const isEnrolled = authUser?.enrolledCourses?.includes(selectedCourse?._id);
+
   return (
-    <div className="bg-slate-900 text-slate-200 font-sans">
+    <div className="bg-slate-900 text-slate-200">
       {/* --- Hero Section --- */}
       <div className="relative bg-slate-800 text-white py-16 md:py-24 px-4 overflow-hidden">
         <img
@@ -190,9 +218,9 @@ const CourseDetails = () => {
             <div className="space-y-4">
               <h2 className="text-2xl font-bold">Course content</h2>
               <p className="text-sm text-slate-400">
-                {selectedCourse.sections.length} sections •{" "}
-                {selectedCourse.totalLectures} lectures •{" "}
-                {formatDuration(selectedCourse.totalDuration)} total length
+                {selectedCourse.sections.length} sections • {totalLectures}{" "}
+                lectures • {formatDuration(selectedCourse.totalDuration)} total
+                length
               </p>
               {selectedCourse.sections.map((section, index) => (
                 <AccordionItem
@@ -245,18 +273,15 @@ const CourseDetails = () => {
                   </div>
                   <button
                     onClick={() =>
-                      navigate(
-                        `/cart/${selectedCourse?.title.replace(/\s+/g, "-")}`,
-                        {
-                          state: {
-                            id: selectedCourse?._id,
-                          },
-                        }
+                      handleEnroll(
+                        selectedCourse.title,
+                        selectedCourse._id,
+                        selectedCourse.sections
                       )
                     }
                     className="w-full group flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold text-lg hover:scale-105 transition-transform duration-300"
                   >
-                    Enroll Now
+                    {isEnrolled ? "Go to course" : "Enroll Now"}
                   </button>
                   <p className="text-xs text-slate-400 text-center mt-3">
                     30-Day Money-Back Guarantee

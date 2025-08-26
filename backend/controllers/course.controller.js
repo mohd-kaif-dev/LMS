@@ -10,22 +10,30 @@ import { uploadBufferToCloudinary } from "../utils/Helper.js"; // or define abov
 // Step 1: Create a draft course
 export const createCourseDraft = async (req, res) => {
     try {
-        const { title, category } = req.body;
+        const { title, category, description, detailedDescription, learningOutcomes, requirements, price, originalPrice, difficulty, sections } = req.body;
 
-        if (!title || !category) {
+        if (!title || !category || !description || !detailedDescription || !learningOutcomes || !requirements || !price || !originalPrice || !difficulty) {
             return res.status(400).json({ message: "Title and category are required" });
         }
 
         const course = await Course.create({
             title,
             category,
-            instructor: req.user.userId,
+            description,
+            detailedDescription,
+            learningOutcomes,
+            requirements,
+            price,
+            originalPrice,
+            difficulty,
+            sections,
+            instructor: req.user._id,
             status: "draft",
         });
 
-        res.status(201).json(course);
+        res.status(201).json({ success: true, message: "Course Draft created successfully", course });
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        res.status(500).json({ success: false, message: err.message });
     }
 };
 
@@ -33,42 +41,119 @@ export const createCourseDraft = async (req, res) => {
 export const updateCourseDraft = async (req, res) => {
     try {
         const { id } = req.params;
-        const updates = req.body;
+        const {
+            title,
+            category,
+            description,
+            detailedDescription,
+            learningOutcomes,
+            requirements,
+            price,
+            originalPrice,
+            difficulty,
+            sections
+        } = req.body;
 
-        const course = await Course.findOneAndUpdate(
-            { _id: id, instructor: req.user.userId },
-            { $set: updates },
-            { new: true }
-        );
-
+        const course = await Course.findOne({ _id: id, instructor: req.user._id });
         if (!course) {
             return res.status(404).json({ message: "Course not found or not yours" });
         }
 
-        res.json(course);
+        // Update basic fields
+        if (title !== undefined) course.title = title;
+        if (category !== undefined) course.category = category;
+        if (description !== undefined) course.description = description;
+        if (detailedDescription !== undefined) course.detailedDescription = detailedDescription;
+        if (learningOutcomes !== undefined) course.learningOutcomes = learningOutcomes;
+        if (requirements !== undefined) course.requirements = requirements;
+        if (price !== undefined) course.price = price;
+        if (originalPrice !== undefined) course.originalPrice = originalPrice;
+        if (difficulty !== undefined) course.difficulty = difficulty;
+
+        // Handle sections carefully (merge logic, don't overwrite _id)
+        if (sections && Array.isArray(sections)) {
+            sections.forEach((sectionData, index) => {
+                if (sectionData._id) {
+                    // Update existing section
+                    const section = course.sections.id(sectionData._id);
+                    if (section) {
+                        if (sectionData.title !== undefined) section.title = sectionData.title;
+
+                        // Update lessons inside this section
+                        if (Array.isArray(sectionData.lessons)) {
+                            sectionData.lessons.forEach((lessonData) => {
+                                if (lessonData._id) {
+                                    const lesson = section.lessons.id(lessonData._id);
+                                    if (lesson) {
+                                        if (lessonData.title !== undefined) lesson.title = lessonData.title;
+                                        if (lessonData.videoUrl !== undefined) lesson.videoUrl = lessonData.videoUrl;
+                                        if (lessonData.duration !== undefined) lesson.duration = lessonData.duration;
+                                        if (lessonData.description !== undefined) lesson.description = lessonData.description;
+                                        if (lessonData.uploadProgress !== undefined) lesson.uploadProgress = lessonData.uploadProgress;
+                                    }
+                                } else {
+                                    // Add new lesson
+                                    section.lessons.push(lessonData);
+                                }
+                            });
+                        }
+                    }
+                } else {
+                    // Add new section
+                    course.sections.push(sectionData);
+                }
+            });
+        }
+
+        await course.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Course Draft updated successfully",
+            course
+        });
+
     } catch (err) {
+        console.error(err);
         res.status(500).json({ message: err.message });
     }
 };
+
 
 export const togglePublishCourse = async (req, res) => {
     try {
         const { id } = req.params;
 
-        const course = await Course.findOneAndUpdate(
-            { _id: id, instructor: req.user.userId },
-        );
+        // Find the course first to get its current state
+        const courseToUpdate = await Course.findOne({ _id: id, instructor: req.user._id });
 
-        if (!course) {
+        if (!courseToUpdate) {
             return res.status(404).json({ message: "Course not found or not yours" });
         }
 
-        course.status = course.status === "draft" ? "published" : "draft";
-        course.published = !course.published; // toggle published status
-        await course.save();
+        // Determine the new values in your application logic
+        const newStatus = courseToUpdate.status === "draft" ? "published" : "draft";
+        const newPublishedState = !courseToUpdate.published;
 
-        res.json({ message: `Course ${course.status === "published" ? "published" : "unpublished"} successfully`, course });
+        // Perform a simple $set update with the calculated values
+        const course = await Course.findByIdAndUpdate(
+            id,
+            {
+                $set: {
+                    status: newStatus,
+                    published: newPublishedState
+                }
+            },
+            { new: true } // This option returns the document after the update
+        );
+
+        res.json({
+            message: `Course ${course.status === "published" ? "published" : "unpublished"} successfully`,
+            course
+        });
+
     } catch (err) {
+        console.log("Error in togglePublishCourse controller: ", err);
         res.status(500).json({ message: err.message });
     }
 };
@@ -114,8 +199,6 @@ export const getAllCourses = async (req, res) => {
 
 };
 
-
-
 // Get single course by ID
 export const getCourseById = async (req, res) => {
     try {
@@ -127,28 +210,6 @@ export const getCourseById = async (req, res) => {
     }
 };
 
-// Update course
-export const updateCourse = async (req, res) => {
-    try {
-        const course = await Course.findById(req.params.id);
-
-        if (!course) return res.status(404).json({ message: "Course not found" });
-
-        if (
-            req.user.role !== "admin" &&
-            course.instructor.toString() !== req.user._id.toString()
-        ) {
-            return res.status(403).json({ message: "Not authorized to update this course" });
-        }
-
-        Object.assign(course, req.body);
-        await course.save();
-
-        res.json(course);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-};
 
 // Enroll in course
 export const enrollInCourse = async (req, res) => {
@@ -186,7 +247,7 @@ export const deleteCourse = async (req, res) => {
     try {
         const course = await Course.findOneAndDelete({
             _id: req.params.id,
-            instructor: req.user.userId
+            instructor: req.user._id
         });
 
         if (!course) {
@@ -236,7 +297,7 @@ export const uploadCourseThumbnail = async (req, res) => {
 export const uploadLessonVideo = async (req, res) => {
     try {
         const { courseId, sectionId, lessonId } = req.params;
-        const { title, description, duration } = req.body;
+        const { title, description, duration, uploadProgress } = req.body;
         if (!req.file) return res.status(400).json({ message: "No video file uploaded" });
 
         const uploadResult = await cloudinary.uploader.upload(req.file.path, {
@@ -246,6 +307,8 @@ export const uploadLessonVideo = async (req, res) => {
 
         fs.unlinkSync(req.file.path);
 
+        console.log("sectionId", sectionId)
+
         const course = await Course.findById(courseId);
         if (!course) return res.status(404).json({ message: "Course not found" });
 
@@ -254,7 +317,7 @@ export const uploadLessonVideo = async (req, res) => {
 
         let lesson = section.lessons.id(lessonId);
         if (!lesson) {
-            lesson = section.lessons.create({ title, description, duration });
+            lesson = section.lessons.create({ title, description, duration, uploadProgress });
             section.lessons.push(lesson);
         }
 
@@ -271,7 +334,7 @@ export const uploadLessonVideo = async (req, res) => {
         lesson.videoPublicId = uploadResult.public_id;
         await course.save();
 
-        res.json({ message: "Lesson video uploaded", lesson });
+        res.json({ message: "Lesson video uploaded", course, lesson });
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: "Upload failed", error: err.message });
@@ -302,53 +365,54 @@ export const deleteLessonVideo = async (req, res) => {
         }
 
         await course.save();
-        res.json({ message: 'Video deleted', lesson: lessonFound });
+        res.json({ message: 'Video deleted', course });
     } catch (error) {
+        console.log("Error in deleteLessonVideo controller: ", error);
         res.status(500).json({ message: 'Delete failed', error: error.message });
     }
 };
 
-// Add lesson with video
-export const addLessonWithVideo = async (req, res) => {
-    try {
-        const courseId = req.params.courseId;
-        const { sectionId, title, description, duration } = req.body;
+// // Add lesson with video
+// export const addLessonWithVideo = async (req, res) => {
+//     try {
+//         const courseId = req.params.courseId;
+//         const { sectionId, title, description, duration } = req.body;
 
-        if (!req.file) return res.status(400).json({ message: "No video file uploaded" });
+//         if (!req.file) return res.status(400).json({ message: "No video file uploaded" });
 
-        // Upload temp file to Cloudinary as video
-        const result = await cloudinary.uploader.upload(req.file.path, {
-            folder: "lms_videos",
-            resource_type: "video",
-        });
+//         // Upload temp file to Cloudinary as video
+//         const result = await cloudinary.uploader.upload(req.file.path, {
+//             folder: "lms_videos",
+//             resource_type: "video",
+//         });
 
-        // remove temp file
-        fs.unlinkSync(req.file.path);
+//         // remove temp file
+//         fs.unlinkSync(req.file.path);
 
-        const course = await Course.findById(courseId);
-        if (!course) return res.status(404).json({ message: "Course not found" });
+//         const course = await Course.findById(courseId);
+//         if (!course) return res.status(404).json({ message: "Course not found" });
 
-        // Find section
-        const section = course.sections.id(sectionId);
-        if (!section) return res.status(404).json({ message: "Section not found" });
+//         // Find section
+//         const section = course.sections.id(sectionId);
+//         if (!section) return res.status(404).json({ message: "Section not found" });
 
-        const newLesson = {
-            title,
-            description,
-            duration: duration ? Number(duration) : undefined,
-            videoUrl: result.secure_url,
-            videoPublicId: result.public_id,
-        };
+//         const newLesson = {
+//             title,
+//             description,
+//             duration: duration ? Number(duration) : undefined,
+//             videoUrl: result.secure_url,
+//             videoPublicId: result.public_id,
+//         };
 
-        section.lessons.push(newLesson);
-        await course.save();
+//         section.lessons.push(newLesson);
+//         await course.save();
 
-        res.json({ message: "Lesson added with video", course });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: "Upload failed", error: err.message });
-    }
-};
+//         res.json({ message: "Lesson added with video", course });
+//     } catch (err) {
+//         console.error(err);
+//         res.status(500).json({ message: "Upload failed", error: err.message });
+//     }
+// };
 
 
 export const getInstructorAllCourses = async (req, res) => {

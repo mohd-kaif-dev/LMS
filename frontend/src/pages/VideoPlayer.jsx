@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   Play,
   Pause,
@@ -10,10 +10,13 @@ import {
   ChevronLeft,
   ChevronsRight,
   ChevronsLeft,
-  XCircle,
-  Clock,
   CheckCircle,
+  ChevronDown,
+  PlayCircle as LessonIcon,
 } from "lucide-react";
+import useCourseStore from "../store/useCourseStore";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { dateFormat } from "../utils/constant";
 
 // ======================================================================
 // StarRating Component - A reusable component for star ratings
@@ -46,6 +49,14 @@ const StarRating = ({ rating, onRate, size = 20 }) => {
   );
 };
 
+const GlassCard = ({ children, className = "" }) => (
+  <div
+    className={`bg-slate-800/40 backdrop-blur-lg border border-slate-700/50 rounded-2xl shadow-2xl shadow-black/20 ${className}`}
+  >
+    {children}
+  </div>
+);
+
 // ======================================================================
 // VideoPlayer Component - The core video player and lecture details
 // ======================================================================
@@ -59,7 +70,7 @@ const VideoPlayer = ({ lecture, isSidebarOpen }) => {
   const progressBarRef = useRef(null);
 
   const isYouTube = (url) =>
-    url.includes("youtube.com") || url.includes("youtu.be");
+    url?.includes("youtube.com") || url?.includes("youtu.be");
 
   const getYouTubeId = (url) => {
     const regExp =
@@ -149,9 +160,16 @@ const VideoPlayer = ({ lecture, isSidebarOpen }) => {
     )}`;
   };
 
-  const videoElement = isYouTube(lecture.videoUrl) ? (
+  if (!lecture)
+    return (
+      <div className="text-white h-screen flex items-center justify-center">
+        Refresh the Page, No lecture is provide
+      </div>
+    );
+
+  const videoElement = isYouTube(lecture?.videoUrl) ? (
     <iframe
-      src={getEmbedUrl(lecture.videoUrl)}
+      src={getEmbedUrl(lecture?.videoUrl)}
       title="YouTube video player"
       frameBorder="0"
       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -161,7 +179,7 @@ const VideoPlayer = ({ lecture, isSidebarOpen }) => {
   ) : (
     <video
       ref={videoRef}
-      src={lecture.videoUrl}
+      src={lecture?.videoUrl}
       onTimeUpdate={handleTimeUpdate}
       onLoadedMetadata={handleLoadedMetadata}
       onPlay={() => setIsPlaying(true)}
@@ -275,43 +293,43 @@ const VideoPlayer = ({ lecture, isSidebarOpen }) => {
 // LectureDetails Component - The content below the video player
 // ======================================================================
 const LectureDetails = ({ lecture, userRating, onRate, courseMeta }) => {
-  const [showScheduler, setShowScheduler] = useState(true);
+  // const [showScheduler, setShowScheduler] = useState(true);
 
   return (
     <div className="mt-8 px-4 sm:px-8 mb-8">
       <h1 className="text-2xl sm:text-3xl font-bold mb-4 text-white">
-        {lecture.title}
+        {lecture?.title}
       </h1>
       <p className="text-gray-300 mb-6 text-sm sm:text-base">
-        {lecture.description}
+        {lecture?.description}
       </p>
 
       <div className="flex flex-wrap items-center space-x-4 sm:space-x-8 mb-6">
         <div className="flex items-center space-x-2 text-white mb-2">
           <span className="font-bold text-base sm:text-lg">
-            {courseMeta.rating}
+            {lecture?.rating}
           </span>
           <StarRating rating={userRating} onRate={onRate} size={18} />
           <span className="text-gray-400 text-xs sm:text-sm">
-            {courseMeta.students.toLocaleString()} ratings
+            {lecture?.rating?.toLocaleString()} ratings
           </span>
         </div>
         <div className="text-white mb-2">
           <span className="font-bold text-base sm:text-lg">
-            {courseMeta.students.toLocaleString()}
+            {lecture?.studentsEnrolled?.length}
           </span>
           <span className="text-gray-400 text-xs sm:text-sm"> students</span>
         </div>
         <div className="text-white mb-2">
           <span className="font-bold text-base sm:text-lg">
-            {courseMeta.totalHours}
+            {lecture?.totalHours}
           </span>
           <span className="text-gray-400 text-xs sm:text-sm"> total hours</span>
         </div>
       </div>
 
       <p className="text-gray-400 text-xs sm:text-sm mb-4">
-        Last updated {courseMeta.lastUpdated}
+        Last updated {dateFormat(lecture?.createdAt)}
       </p>
       <p className="text-gray-400 text-xs sm:text-sm">
         <span className="font-semibold text-white">English</span> [Auto],
@@ -321,8 +339,7 @@ const LectureDetails = ({ lecture, userRating, onRate, courseMeta }) => {
         </span>
       </p>
 
-      {showScheduler && (
-        <div className="mt-6 bg-gray-800 rounded-lg p-4 sm:p-6 flex flex-col md:flex-row items-start md:items-center justify-between">
+      {/* <div className="mt-6 bg-gray-800 rounded-lg p-4 sm:p-6 flex flex-col md:flex-row items-start md:items-center justify-between">
           <div className="flex items-center space-x-4 mb-4 md:mb-0">
             <Clock size={40} className="text-white flex-shrink-0" />
             <div>
@@ -351,8 +368,7 @@ const LectureDetails = ({ lecture, userRating, onRate, courseMeta }) => {
               Dismiss
             </button>
           </div>
-        </div>
-      )}
+        </div> */}
 
       {/* By the numbers */}
       <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-4 text-gray-400">
@@ -427,39 +443,210 @@ const CourseContent = ({ courseContent }) => {
   );
 };
 
+const CourseContentSidebar = ({
+  content,
+  currentLectureId,
+  onLectureSelect,
+}) => {
+  const [openSection, setOpenSection] = useState(1); // Default open section 2
+  const totalLectures = content?.reduce(
+    (acc, section) => acc + section?.lessons?.length,
+    0
+  );
+  const completedLectures =
+    content &&
+    content.flatMap((s) => s.lectures).filter((l) => l?.status === "watched")
+      .length;
+  const progress = Math.round((completedLectures / totalLectures) * 100);
+
+  return (
+    <GlassCard className="w-full h-full p-4 flex flex-col">
+      <div className="p-2 mb-4">
+        <h2 className="text-xl font-bold text-white mb-2">Course Content</h2>
+        <div className="flex items-center gap-3">
+          <div className="relative w-12 h-12">
+            <svg className="w-full h-full" viewBox="0 0 36 36">
+              <path
+                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                fill="none"
+                stroke="#475569"
+                strokeWidth="3"
+              />
+              <path
+                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                fill="none"
+                stroke="#3b82f6"
+                strokeWidth="3"
+                strokeDasharray={`${progress}, 100`}
+                strokeLinecap="round"
+                className="transform -rotate-90 origin-center"
+              />
+            </svg>
+            <span className="absolute inset-0 flex items-center justify-center text-xs font-bold">
+              {progress}%
+            </span>
+          </div>
+          <div>
+            <p className="text-slate-300 text-sm">
+              {completedLectures} / {totalLectures} lectures
+            </p>
+          </div>
+        </div>
+      </div>
+      <div className="flex-1 overflow-y-auto pr-2">
+        {content?.map((section, index) => (
+          <div key={index} className="mb-2">
+            <button
+              onClick={() =>
+                setOpenSection(openSection === index ? null : index)
+              }
+              className="w-full flex justify-between items-center p-3 bg-slate-700/50 rounded-lg hover:bg-slate-700 transition-colors"
+            >
+              <span className="font-semibold text-left">{section.title}</span>
+              <ChevronDown
+                size={16}
+                className={`transition-transform ${
+                  openSection === index ? "rotate-180" : ""
+                }`}
+              />
+            </button>
+            {openSection === index && (
+              <ul className="mt-2 space-y-1">
+                {section.lessons.map((lecture) => (
+                  <li
+                    key={lecture._id}
+                    onClick={() => onLectureSelect(lecture)}
+                    className={`flex items-center justify-between p-3 rounded-md cursor-pointer ${
+                      lecture._id === currentLectureId
+                        ? "bg-blue-500/20 text-blue-300"
+                        : "hover:bg-slate-700/50"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      {lecture?.status === "watched" ? (
+                        <CheckCircle size={16} className="text-green-500" />
+                      ) : (
+                        <LessonIcon size={16} className="text-slate-500" />
+                      )}
+                      <span className="text-sm">{lecture.title}</span>
+                    </div>
+                    <span className="text-xs text-slate-400">
+                      {lecture.duration}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        ))}
+      </div>
+    </GlassCard>
+  );
+};
+
 // ======================================================================
 // FullCoursePage Component - The main page layout
 // ======================================================================
 const VideoPlayerPage = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [userRating, setUserRating] = useState(0);
+  // State to hold the currently active lecture object
+  const [currentLecture, setCurrentLecture] = useState(null);
 
-  const mockLecture = {
-    title: "Web Design for Web Developers: Build Beautiful Websites!",
-    description:
-      "Learn web design in 1 hour with 25+ simple-to-use rules and guidelines - tons of amazing web design resources included!",
-    videoUrl:
-      "https://res.cloudinary.com/dy4pu0fvx/video/upload/v1755623161/Python_ki1ded.mp4",
+  const location = useLocation();
+  const courseId = location?.state?.id;
+  const navigate = useNavigate(); // Hook for navigation
+  // Get both courseId and the specific lessonId from the URL
+  const { lessonId: currentLectureId } = useParams();
+
+  const { selectedCourse, fetchCourseById, isFetching } = useCourseStore();
+
+  // Effect to fetch the course data when the component mounts or courseId changes
+  useEffect(() => {
+    if (courseId) {
+      fetchCourseById(courseId);
+    }
+  }, [courseId, fetchCourseById]);
+
+  // Effect to determine which lecture to play
+  useEffect(() => {
+    if (selectedCourse?.sections?.length > 0) {
+      let lectureToPlay = null;
+
+      // 1. Try to find the lecture specified in the URL
+      if (currentLectureId) {
+        for (const section of selectedCourse.sections) {
+          const foundLecture = section.lessons.find(
+            (l) => l._id === currentLectureId
+          );
+          if (foundLecture) {
+            lectureToPlay = foundLecture;
+            break;
+          }
+        }
+      }
+
+      // 2. If no lecture was found (or no lessonId in URL), default to the first one
+      if (!lectureToPlay) {
+        lectureToPlay = selectedCourse.sections[0]?.lessons[0];
+      }
+
+      // 3. Set the lecture and update the URL if it was missing the lessonId
+      if (lectureToPlay) {
+        setCurrentLecture(lectureToPlay);
+        if (lectureToPlay._id !== currentLectureId) {
+          navigate(
+            `/courses/${selectedCourse?.title
+              .replace(/\s+/g, "-")
+              .toLowerCase()}/learn/${lectureToPlay._id}`,
+            {
+              state: {
+                id: selectedCourse?._id,
+              },
+            }
+          );
+        }
+      }
+    }
+  }, [selectedCourse, currentLectureId, courseId, navigate, location.state]);
+
+  // Handler function to be called when a lecture is clicked in the sidebar
+  const handleLectureSelect = (lecture) => {
+    setCurrentLecture(lecture);
+    // Update the URL to reflect the newly selected lecture
+    navigate(
+      `/courses/${selectedCourse?.title
+        .replace(/\s+/g, "-")
+        .toLowerCase()}/learn/${lecture?._id}`,
+      {
+        state: {
+          id: selectedCourse?._id,
+        },
+      }
+    );
   };
 
-  const mockCourseContent = [
-    { title: "Section 1: Course Introduction", duration: "0/3 | 3min" },
-    {
-      title: "Section 2: The 25+ Guidelines Of Amazing Web Design",
-      duration: "0/13 | 45min",
-    },
-    { title: "Section 3: Course Summary", duration: "0/3 | 1hr 42min" },
-    { title: "Section 4: Conclusion", duration: "0/2 | 4min" },
-  ];
+  // A loading state while fetching data
+  if (isFetching) {
+    return (
+      <div className="bg-gray-900 min-h-screen text-white flex justify-center items-center">
+        <p className="text-xl">Loading Course...</p>
+      </div>
+    );
+  }
 
-  const mockCourseMeta = {
-    rating: 4.5,
-    students: 809294,
-    totalHours: "2.5 hours",
-    lastUpdated: "November 2024",
-    lectures: 19,
-    language: "English",
-    captions: "Yes",
+  // Create a dynamic course metadata object from the fetched course data
+  const courseMeta = {
+    rating: selectedCourse?.rating,
+    students: selectedCourse?.studentsEnrolled?.length || 0,
+    totalHours: `${(selectedCourse?.totalDuration / 3600).toFixed(1)}`,
+    lastUpdated: dateFormat(selectedCourse?.updatedAt),
+    lectures: selectedCourse?.sections?.reduce(
+      (acc, section) => acc + section.lessons.length,
+      0
+    ),
+    language: "English", // Assuming English, you can make this dynamic
+    captions: "Yes", // Assuming Yes, you can make this dynamic
   };
 
   return (
@@ -469,10 +656,18 @@ const VideoPlayerPage = () => {
           isSidebarOpen ? "lg:w-3/4" : "lg:w-full"
         } w-full`}
       >
-        <VideoPlayer lecture={mockLecture} isSidebarOpen={isSidebarOpen} />
+        {/* Pass the dynamic `currentLecture` object */}
+        {/* Add a `key` to force the VideoPlayer to re-mount when the lecture changes */}
+        <VideoPlayer
+          lecture={currentLecture}
+          isSidebarOpen={isSidebarOpen}
+          key={currentLecture?._id}
+        />
+
+        {/* Pass the dynamic `currentLecture` and `courseMeta` objects */}
         <LectureDetails
-          lecture={mockLecture}
-          courseMeta={mockCourseMeta}
+          lecture={currentLecture}
+          courseMeta={courseMeta}
           userRating={userRating}
           onRate={setUserRating}
         />
@@ -484,16 +679,21 @@ const VideoPlayerPage = () => {
       >
         {isSidebarOpen && (
           <div className="h-full p-4 fixed top-20 bg-gray-900">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold">Course content</h2>
+            <div className="relative z-40">
               <button
                 onClick={() => setIsSidebarOpen(false)}
-                className="text-gray-400 hover:text-white transition-colors"
+                className="text-gray-400 hover:bg-white/20 hover:text-white transition-colors absolute top-4 right-4 p-1 rounded-sm"
               >
                 <ChevronRight size={24} />
               </button>
             </div>
-            <CourseContent courseContent={mockCourseContent} />
+
+            {/* Pass the course content, active lecture ID, and the select handler */}
+            <CourseContentSidebar
+              content={selectedCourse?.sections}
+              currentLectureId={currentLectureId}
+              onLectureSelect={handleLectureSelect}
+            />
           </div>
         )}
       </aside>

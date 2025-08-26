@@ -3,23 +3,11 @@ import mongoose from "mongoose";
 const lessonSchema = new mongoose.Schema({
     title: {
         type: String,
-        required: [true, "Lesson title is required"],
         trim: true,
-        minlength: [3, "Lesson title must be at least 3 characters"],
+
     },
     videoUrl: {
         type: String,
-        validate: {
-            validator: (url) => {
-                try {
-                    new URL(url);
-                    return true;
-                } catch (error) {
-                    return false;
-                }
-            },
-            message: "Invalid video URL",
-        },
     },
     videoPublicId: {
         type: String,
@@ -33,14 +21,18 @@ const lessonSchema = new mongoose.Schema({
         type: String,
         trim: true,
     },
+    uploadProgress: {
+        type: Number,
+        default: 0,
+    }
 }, { timestamps: true });
 
 const sectionSchema = new mongoose.Schema({
     title: {
         type: String,
-        required: [true, "Section title is required"],
+
         trim: true,
-        minlength: [3, "Section title must be at least 3 characters"],
+
     },
     lessons: [lessonSchema],
 });
@@ -68,7 +60,7 @@ const courseSchema = new mongoose.Schema(
             type: String,
             trim: true,
         },
-        dificulty: {
+        difficulty: {
             type: String,
             enum: ["beginner", "intermediate", "advanced"],
             default: "beginner",

@@ -67,3 +67,16 @@ export const faqData = [
       "Yes! Anyone can apply to become a teacher on LearnSphere. We have a supportive community and resources to help you create and publish your first class. You can earn money and build a following by sharing your skills with others.",
   },
 ];
+
+export const dateFormat = (date) => {
+  if (!date) return "N/A";
+  const options = { year: "numeric", month: "long", day: "numeric" };
+  return new Date(date).toLocaleDateString(undefined, options);
+};
+
+export const formatTime = (time) => {
+  if (!time) return "N/A";
+  const hours = Math.floor(time / 3600);
+  const minutes = Math.floor((time % 3600) / 60);
+  return `${hours}h ${minutes}m`;
+};

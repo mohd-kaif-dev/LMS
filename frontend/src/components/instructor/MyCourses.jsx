@@ -17,7 +17,7 @@ const StatCard = ({ icon, title, value, color }) => {
     <div
       className={`flex items-center space-x-4 p-6 rounded-2xl shadow-lg ${color} text-white`}
     >
-      <span className="p-3 rounded-full bg-white bg-opacity-20">{icon}</span>
+      <span className="p-3 rounded-full bg-white/20">{icon}</span>
       <div>
         <h3 className="text-xl font-semibold">{value}</h3>
         <p className="text-sm opacity-80">{title}</p>
@@ -45,7 +45,13 @@ const MyCourses = () => {
   return (
     <div className="bg-gray-900 min-h-screen text-white font-sans antialiased p-8">
       <div className="container mx-auto">
-        <h1 className="text-4xl md:text-5xl font-bold mb-2">My Courses</h1>
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-4xl md:text-5xl font-bold mb-2">My Courses</h1>
+          <button className="flex items-center space-x-2 px-4 py-2 rounded-full bg-green-500 text-black font-semibold hover:bg-green-600 transition-colors duration-200">
+            <Plus size={20} />
+            <span>Create New Course</span>
+          </button>
+        </div>
         <p className="text-lg text-gray-400 mb-12">
           Manage your published and draft courses.
         </p>
@@ -73,30 +79,28 @@ const MyCourses = () => {
         </div>
 
         {/* Published Courses Section */}
-        <div className="mb-12">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-3xl font-bold">Published Courses</h2>
-            <button className="flex items-center space-x-2 px-4 py-2 rounded-full bg-green-500 text-black font-semibold hover:bg-green-600 transition-colors duration-200">
-              <Plus size={20} />
-              <span>Create New Course</span>
-            </button>
+        {publishedCourses && (
+          <div className="mb-12">
+            <h2 className="text-3xl font-bold mb-6">Published Courses</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {publishedCourses.map((course) => (
+                <CourseCard key={course._id} course={course} />
+              ))}
+            </div>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {publishedCourses.map((course) => (
-              <CourseCard key={course._id} course={course} />
-            ))}
-          </div>
-        </div>
+        )}
 
         {/* Draft Courses Section */}
-        <div className="mb-12">
-          <h2 className="text-3xl font-bold mb-6">Draft Courses</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {draftCourses.map((course) => (
-              <CourseCard key={course.id} course={course} />
-            ))}
+        {draftCourses && (
+          <div className="mb-12">
+            <h2 className="text-3xl font-bold mb-6">Draft Courses</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {draftCourses.map((course) => (
+                <CourseCard key={course._id} course={course} />
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

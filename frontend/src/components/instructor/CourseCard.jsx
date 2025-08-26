@@ -1,12 +1,21 @@
 import React from "react";
 import { FaUserGraduate, FaStar, FaDollarSign, FaCrown } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 const CourseCard = ({ course }) => {
-  const { thumbnailUrl, title, rating, price, dificulty, studentsEnrolled } =
-    course;
+  const {
+    thumbnailUrl,
+    title,
+    rating,
+    price,
+    difficulty,
+    studentsEnrolled,
+    status,
+    _id,
+  } = course;
 
-  const getDifficultyColor = (dificulty) => {
-    switch (dificulty.toLowerCase()) {
+  const getDifficultyColor = (difficulty) => {
+    switch (difficulty.toLowerCase()) {
       case "beginner":
         return "text-green-500 bg-green-100";
       case "intermediate":
@@ -18,7 +27,21 @@ const CourseCard = ({ course }) => {
     }
   };
 
-  const difficultyClass = getDifficultyColor(dificulty);
+  const navigate = useNavigate();
+
+  const difficultyClass = getDifficultyColor(difficulty);
+
+  const handleClick = () => {
+    if (course.status === "published") {
+      navigate(`/instructor/my-courses/${title.replace(/\s+/g, "-")}/view`, {
+        state: {
+          id: _id,
+        },
+      });
+    } else {
+      navigate(`/instructor/edit-course/${_id}`);
+    }
+  };
 
   return (
     <div className="max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl mx-auto rounded-xl overflow-hidden shadow-2xl hover:shadow-3xl transition-shadow duration-300 bg-white dark:bg-gray-800 transform hover:scale-105">
@@ -31,7 +54,7 @@ const CourseCard = ({ course }) => {
         <div
           className={`absolute top-3 right-3 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider ${difficultyClass}`}
         >
-          {dificulty}
+          {difficulty}
         </div>
       </div>
       <div className="p-6 space-y-4">
@@ -64,8 +87,11 @@ const CourseCard = ({ course }) => {
             <FaDollarSign className="text-lg mr-1" />
             {price.toFixed(2)}
           </span>
-          <button className="px-5 py-2 rounded-full font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors duration-200 shadow-md">
-            View Course
+          <button
+            onClick={handleClick}
+            className="px-5 py-2 rounded-full font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors duration-200 shadow-md"
+          >
+            {status === "published" ? "View" : "Edit"}
           </button>
         </div>
       </div>

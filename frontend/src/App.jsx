@@ -1,12 +1,10 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
-import Login from "./pages/Login";
+
 import SuccessLogin from "./pages/SuccessLogin";
-import Register from "./pages/Register";
-// import InstructorDashboard from "./components/InstructorDashboard";
-import Layout from "./components/Layout";
-import CourseCreation from "./components/instructor/CourseCreation";
-import CourseDetailsPage from "./components/CourseDetailPage";
+
+import CourseCreation from "./components/instructor/CourseCreation3";
+
 import UserLayout from "./layout/userLayout";
 import SignUp from "./pages/SignUp";
 import SignIn from "./pages/SignIn";
@@ -17,10 +15,10 @@ import { Toaster } from "sonner";
 import Dashboard from "./components/students/Dashboard";
 import InstructorLayout from "./layout/instructorLayout";
 import InstructorDashboard from "./components/instructor/Dashboard";
-import Analytics from "./components/instructor/Analytics";
+
 import MyCourses from "./components/instructor/MyCourses";
 import MyEnrollement from "./components/students/MyEnrollment";
-import CourseCreation1 from "./components/CourseCreation1";
+
 import CourseDetails from "./components/user/CourseDetails";
 
 import AdminLayout from "./layout/adminLayout";
@@ -36,7 +34,6 @@ import CartPage from "./pages/CartPage";
 import OrderConfirmation from "./pages/OrderConfirmation";
 import PurchaseFailure from "./pages/PurchaseFailure";
 import CategoryDisplay from "./pages/Category";
-import FullCoursePage from "./pages/VideoPlayer";
 import VideoPlayerPage from "./pages/VideoPlayer";
 
 const App = () => {
@@ -67,21 +64,23 @@ const App = () => {
           <Route path="success-login" element={<SuccessLogin />} />
           <Route path="student/dashboard" element={<Dashboard />} />
           <Route path="student/my-enrollments" element={<MyEnrollement />} />
-          <Route path="course/:courseId" element={<CourseDetails />} />
+          <Route path="courses/:title" element={<CourseDetails />} />
           <Route path="student/profile" element={<StudentProfile />} />
           <Route path="cart/:title" element={<CartPage />} />
           <Route path="purchase-success" element={<OrderConfirmation />} />
           <Route path="purchase-failure" element={<PurchaseFailure />} />
           <Route path="category/:category" element={<CategoryDisplay />} />
           <Route
-            path="courses/:title/learn/:lectureId"
+            path="courses/:title/learn/:lessonId"
             element={<VideoPlayerPage />}
           />
         </Route>
         <Route path="/instructor" element={<InstructorLayout />}>
           <Route path="dashboard" element={<InstructorDashboard />} />
           <Route path="course-creation" element={<CourseCreation />} />
+          <Route path="edit-course/:courseId" element={<CourseCreation />} />
           <Route path="my-courses" element={<MyCourses />} />
+          <Route path="my-courses/:title/view" element={<CourseDetails />} />
           <Route path="analytics" element={<InstructorAnalytics />} />
           <Route path="profile" element={<InstructorProfile />} />
         </Route>
@@ -89,6 +88,7 @@ const App = () => {
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="manage-users" element={<UserManagement />} />
           <Route path="manage-courses" element={<CourseManagement />} />
+          <Route path="courses/:title/view" element={<CourseDetails />} />
           <Route path="site-analytics" element={<AdminAnalytics />} />
           <Route path="settings" element={<Settings />} />
         </Route>

@@ -59,7 +59,7 @@ export const handleSuccess = async (req, res) => {
         // Find and update the checkout session
         const checkout = await Checkout.findById(checkoutId).populate({
             path: "course",
-            select: "title price instructor thumbnailUrl",
+            select: "title price instructor thumbnailUrl sections",
             populate: {
                 path: "instructor",
                 select: "name",
@@ -90,7 +90,6 @@ export const handleSuccess = async (req, res) => {
             paymentMethod: "Stripe",
         });
 
-        console.log("New Order:", newOrder);
 
 
 
@@ -103,18 +102,9 @@ export const handleSuccess = async (req, res) => {
 
         await Course.findByIdAndUpdate(newOrder.courses[0]._id, { $addToSet: { studentsEnrolled: newOrder.user } }, { new: true });
 
-
-
-
-
-
-
-
         // Update checkout session status
         checkout.status = 'completed';
         await checkout.save();
-
-        console.log("Checkout Again:", checkout);
 
         res.status(200).json({
             success: true,

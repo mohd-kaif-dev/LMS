@@ -9,6 +9,9 @@ import {
   ExternalLink,
   Users,
 } from "lucide-react";
+import { useAuthStore } from "../../store/useAuthStore";
+import useCourseStore from "../../store/useCourseStore";
+import { useEffect } from "react";
 
 // ======================================================================
 // StatCard Component - Reusable for displaying a single metric
@@ -32,61 +35,68 @@ const StatCard = ({ icon, title, value, color }) => {
 // ======================================================================
 const InstructorProfile = () => {
   // Mock data for the instructor's profile
-  const instructor = {
-    name: "Jane Smith",
-    bio: "Experienced full-stack developer with a passion for teaching. I love to help people build amazing things with modern web technologies.",
-    profilePicture: "https://placehold.co/150x150/60a5fa/ffffff?text=JS",
-    stats: [
-      {
-        icon: <Users size={20} />,
-        title: "Total Students",
-        value: "1,520",
-        color: "bg-indigo-600",
-      },
-      {
-        icon: <BookOpen size={20} />,
-        title: "Published Courses",
-        value: "5",
-        color: "bg-green-600",
-      },
-      {
-        icon: <DollarSign size={20} />,
-        title: "Total Revenue",
-        value: "$25k",
-        color: "bg-yellow-600",
-      },
-      {
-        icon: <Star size={20} />,
-        title: "Average Rating",
-        value: "4.8",
-        color: "bg-teal-600",
-      },
-    ],
-  };
+  // const instructor = {
+  //   name: "Jane Smith",
+  //   bio: "Experienced full-stack developer with a passion for teaching. I love to help people build amazing things with modern web technologies.",
+  //   profilePicture: "https://placehold.co/150x150/60a5fa/ffffff?text=JS",
+  //   stats: [
+  //     {
+  //       icon: <Users size={20} />,
+  //       title: "Total Students",
+  //       value: "1,520",
+  //       color: "bg-indigo-600",
+  //     },
+  //     {
+  //       icon: <BookOpen size={20} />,
+  //       title: "Published Courses",
+  //       value: "5",
+  //       color: "bg-green-600",
+  //     },
+  //     {
+  //       icon: <DollarSign size={20} />,
+  //       title: "Total Revenue",
+  //       value: "$25k",
+  //       color: "bg-yellow-600",
+  //     },
+  //     {
+  //       icon: <Star size={20} />,
+  //       title: "Average Rating",
+  //       value: "4.8",
+  //       color: "bg-teal-600",
+  //     },
+  //   ],
+  // };
 
-  const courses = [
-    {
-      id: 1,
-      title: "Full Stack Web Dev",
-      students: "850",
-      rating: "4.9",
-      status: "Published",
-    },
-    {
-      id: 2,
-      title: "React.js Fundamentals",
-      students: "420",
-      rating: "4.8",
-      status: "Published",
-    },
-    {
-      id: 3,
-      title: "Advanced CSS & Tailwind",
-      students: "250",
-      rating: "4.7",
-      status: "Published",
-    },
-  ];
+  const { authUser: instructor } = useAuthStore();
+  const { courses, fetchInstructorsCourses } = useCourseStore();
+
+  // const courses = [
+  //   {
+  //     id: 1,
+  //     title: "Full Stack Web Dev",
+  //     students: "850",
+  //     rating: "4.9",
+  //     status: "Published",
+  //   },
+  //   {
+  //     id: 2,
+  //     title: "React.js Fundamentals",
+  //     students: "420",
+  //     rating: "4.8",
+  //     status: "Published",
+  //   },
+  //   {
+  //     id: 3,
+  //     title: "Advanced CSS & Tailwind",
+  //     students: "250",
+  //     rating: "4.7",
+  //     status: "Published",
+  //   },
+  // ];
+
+  useEffect(() => {
+    fetchInstructorsCourses();
+  }, [fetchInstructorsCourses]);
 
   return (
     <div className="bg-gray-900 min-h-screen text-white font-sans antialiased p-8">
@@ -111,12 +121,16 @@ const InstructorProfile = () => {
           <h2 className="text-2xl font-bold text-white mb-4 border-b border-gray-700 pb-2">
             About Me
           </h2>
-          <p className="text-gray-300">{instructor.bio}</p>
+          {instructor?.bio ? (
+            <p className="text-gray-400">{instructor.bio}</p>
+          ) : (
+            <p className="text-gray-400">Add Bio Here</p>
+          )}
         </div>
 
         {/* Instructor Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {instructor.stats.map((stat, index) => (
+          {instructor?.stats?.map((stat, index) => (
             <StatCard key={index} {...stat} />
           ))}
         </div>
